@@ -1,29 +1,55 @@
 import { supabase } from "../../../supabase.js";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { normalizeEmail, normalizeName } from "../../utils/normalize.js";
+import logger from "../../utils/logger.js";
+import { signUpWithEmail } from "./auth.js";
 
 export default function SignUpPage() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     const handleSignUp = async (e) => {
         e.preventDefault();
-        console.log(name, email, password);
+        if (!email || !password) {
+            logger.error("Email and password are required.");
+            return;
+        }
+        const normalizedEmail = normalizeEmail(email);
+        const normalizedName = normalizeName(name);
+        
+        try {
+            const data = await signUpWithEmail(normalizedEmail, password, normalizedName);
+            logger.info("User signed up successfully:", data.user.email);
+            setError(null);
+            navigate("/mygroups");
+        } catch (err) {
+            logger.error("Error signing up:", err);
+            setError(err.message);
+        }
     }
 
     return (
         <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center">
             <h1 className="text-2xl font-bold text-gray-800"> Sign Up Page </h1>
+            {error && <p className="text-red-500 mt-4">{error}</p>}
             <form className="flex flex-col">
-                <input type="text" placeholder="Name" 
+                <input type="text" 
+                    placeholder="Your full name" 
                     className="border border-gray-300 rounded px-4 py-2 mt-4" 
                     onChange={(e) => setName(e.target.value)}
                 />
-                <input type="email" placeholder="Email" 
+                <input type="email" 
+                    placeholder="example@gmail.com" 
                     className="border border-gray-300 rounded px-4 py-2 mt-4" 
                     onChange={(e) => setEmail(e.target.value)}
+                    
                 />
-                <input type="password" placeholder="Password" 
+                <input type="password" 
+                    placeholder="••••••••••" 
                     className="border border-gray-300 rounded px-4 py-2 mt-4"
                     onChange={(e) => setPassword(e.target.value)}
                 />
