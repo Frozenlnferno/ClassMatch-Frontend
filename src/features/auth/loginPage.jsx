@@ -21,7 +21,7 @@ export default function LoginPage() {
         
         try {
             const data = await loginWithEmail(normalizedEmail, password);
-            logger.info("User logged in successfully:", data.user.email);
+            logger.info("User logged in successfully:", data); //data.user.email
             setError(null);
             navigate("/mygroups");
         } catch (err) {
