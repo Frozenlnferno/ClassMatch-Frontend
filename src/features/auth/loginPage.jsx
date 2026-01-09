@@ -1,4 +1,3 @@
-import { supabase } from "../../../supabase.js";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { normalizeEmail } from "../../utils/normalize.js";

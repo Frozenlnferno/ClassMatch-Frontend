@@ -5,6 +5,7 @@ import LoginPage from "./features/auth/loginPage.jsx";
 import MyGroupsPage from "./features/groups/mygroups/groupsPage.jsx";
 import DefaultLayout from "./layouts/DefaultLayout.jsx";
 import LandingPage from "./features/landing/LandingPage.jsx";
+import { ProtectedRoute, PublicRoute } from "./components/RouteGuards.jsx";
 
 function App() {
   return (
@@ -12,9 +13,9 @@ function App() {
       <Routes>
         <Route element={<DefaultLayout/>}>
           <Route path="/" element={<LandingPage/>} />
-          <Route path="/signup" element={<SignUpPage/>} />
-          <Route path="/login" element={<LoginPage/>} />
-          <Route path="/mygroups" element={<MyGroupsPage/>} />
+          <Route path="/signup" element={<PublicRoute element={<SignUpPage/>} />} />
+          <Route path="/login" element={<PublicRoute element={<LoginPage/>} />} />
+          <Route path="/mygroups" element={<ProtectedRoute element={<MyGroupsPage/>} />} />
         </Route>
       </Routes>
     </BrowserRouter>
