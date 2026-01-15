@@ -20,7 +20,7 @@ export default function Navbar() {
           
           {/* Desktop links */}
           <div className="hidden sm:flex items-center space-x-2">
-            <MenuButton session={session} isDesktop={true} />
+            <MenuButton session={session} isDesktop={true} onClose={() => setOpen(false)}/>
           </div>
 
           {/* Mobile menu button */}

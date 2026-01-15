@@ -22,6 +22,7 @@ export default function MenuButton({ isDesktop=true, session, onClose }) {
             </>
           ) : (
             <>
+              <NavLink to="/schedule" className={linkClass}> Schedule </NavLink>
               <NavLink to="/mygroups" className={linkClass}> My Groups </NavLink>
               <button 
                   className="block px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-blue-50"
@@ -56,6 +57,13 @@ export default function MenuButton({ isDesktop=true, session, onClose }) {
             </>
           ) : (
             <>
+              <NavLink
+                to="/schedule"
+                className={mobileLinkClass}
+                onClick={onClose}
+              >
+                Schedule
+              </NavLink>
               <NavLink
                 to="/mygroups"
                 className={mobileLinkClass}

@@ -1,20 +1,22 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../../supabase';
+import CreateGroupForm from './CreateGroupForm';
+import JoinGroupForm from './JoinGroupForm';
+import GroupsList from './GroupsList';
 
 export default function MyGroupsPage() {
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [groups, setGroups] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        testBackendRequest();
+        fetchGroups();
     }, []);
 
-    const testBackendRequest = async () => {
+    const fetchGroups = async () => {
         setLoading(true);
         setError(null);
         try {
-            // Get the current session and JWT token
             const { data: { session } } = await supabase.auth.getSession();
             
             if (!session) {
@@ -23,23 +25,20 @@ export default function MyGroupsPage() {
                 return;
             }
 
-            const token = session.access_token;
-
-            // Make the request to the backend
-            const response = await fetch('http://localhost:5000/api/schedule', {
+            const response = await fetch('http://localhost:5000/api/groups/', {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${session.access_token}`,
                     'Content-Type': 'application/json',
                 },
             });
 
             if (!response.ok) {
-                throw new Error(`Backend error: ${response.status}`);
+                throw new Error(`Failed to fetch groups: ${response.status}`);
             }
 
             const result = await response.json();
-            setData(result);
+            setGroups(result);
         } catch (err) {
             setError(err.message);
             console.error('Request failed:', err);
@@ -48,21 +47,30 @@ export default function MyGroupsPage() {
         }
     };
 
+    const handleJoinSuccess = () => {
+        fetchGroups();
+    };
+
+    const handleError = (errorMsg) => {
+        setError(errorMsg);
+    };
+
+    if (loading) return <div className="p-5">Loading groups...</div>;
+
     return (
-        <div style={{ padding: '20px' }}>
-            <h1>Test Backend Connection</h1>
-            <button onClick={testBackendRequest} disabled={loading}>
-                {loading ? 'Loading...' : 'Test Request'}
-            </button>
-            
-            {error && <div style={{ color: 'red', marginTop: '10px' }}>Error: {error}</div>}
-            
-            {data && (
-                <div style={{ marginTop: '20px', backgroundColor: '#f0f0f0', padding: '10px', borderRadius: '4px' }}>
-                    <h2>Response Data:</h2>
-                    <pre>{JSON.stringify(data, null, 2)}</pre>
+        <div className="p-5 max-w-2xl mx-auto">
+            <h1 className="text-2xl font-semibold mb-4">My Groups</h1>
+
+            <CreateGroupForm onCreateSuccess={handleJoinSuccess} onError={handleError} />
+            <JoinGroupForm onJoinSuccess={handleJoinSuccess} onError={handleError} />
+
+            {error && (
+                <div className="mb-4 p-3 bg-red-100 text-red-800 rounded border border-red-200">
+                    {error}
                 </div>
             )}
+
+            <GroupsList groups={groups} />
         </div>
     );
 }
