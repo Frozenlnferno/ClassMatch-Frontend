@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../../supabase';
 import GroupMembers from './GroupMembers';
+import SkeletonWrapper from '../../components/SkeletonWrapper';
 
 export default function GroupDetailPage() {
     const { groupId } = useParams();
@@ -202,19 +203,25 @@ export default function GroupDetailPage() {
         }
     };
 
-    if (loading) return <div className="p-5">Loading group details...</div>;
+    // if (loading) return <div className="p-5">Loading group details...</div>;
 
     return (
         <div className="p-5 max-w-2xl mx-auto">
+            
             <div className="flex justify-between items-center mb-5">
-                <h1 className="m-0 text-2xl font-semibold">Group Details</h1>
+                <SkeletonWrapper loading={loading}>
+                    <h1 className="m-0 text-2xl font-semibold">Group Details</h1>
+                </SkeletonWrapper>
+                <SkeletonWrapper loading={loading}>
                 <button
                     onClick={() => navigate('/mygroups')}
                     className="px-4 py-2 bg-gray-600 text-white rounded"
                 >
                     Back
                 </button>
+                </SkeletonWrapper>
             </div>
+            
 
             {error && (
                 <div className="mb-5 p-3 bg-red-100 text-red-800 rounded border border-red-200">
@@ -222,12 +229,12 @@ export default function GroupDetailPage() {
                 </div>
             )}
 
-            {group && (
+            {true && (
                 <>
                     <div className="mb-6 p-4 border rounded bg-gray-50">
                         <h2 className="m-0 mb-3 text-lg font-medium">Group Info</h2>
-                        <p className="my-2 text-gray-600">ID: <strong>{group.id}</strong></p>
-                        <p className="my-2 text-gray-600">Total Members: <strong>{group.memberCount}</strong></p>
+                        <p className="my-2 text-gray-600">ID: <strong>{group?.id}</strong></p>
+                        <p className="my-2 text-gray-600">Total Members: <strong>{group?.memberCount}</strong></p>
                         <div className="flex gap-3 mt-4">
                             <button
                                 onClick={handleLeaveGroup}
@@ -250,7 +257,7 @@ export default function GroupDetailPage() {
 
                     <GroupMembers 
                         members={members} 
-                        memberCount={group.memberCount} 
+                        memberCount={group?.memberCount} 
                         currentUserId={currentUserId}
                         currentUserRole={currentUserRole}
                         groupId={groupId}
@@ -346,7 +353,7 @@ export default function GroupDetailPage() {
                             </div>
                         )}
                     </div>
-                </>
+                </>    
             )}
         </div>
     );
