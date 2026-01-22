@@ -24,15 +24,7 @@ export default function MenuButton({ isDesktop=true, session, onClose }) {
             <>
               <NavLink to="/schedule" className={linkClass}> Schedule </NavLink>
               <NavLink to="/mygroups" className={linkClass}> My Groups </NavLink>
-              <button 
-                  className="block px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-blue-50"
-                  onClick={()=> {
-                    logout();
-                    onClose();
-                  }}
-              > 
-                  Log out 
-              </button>
+              <NavLink to="/settings" className={linkClass}> Settings </NavLink>
             </>
           )}
         </div>
@@ -71,15 +63,13 @@ export default function MenuButton({ isDesktop=true, session, onClose }) {
               >
                 My Groups
               </NavLink>
-              <button 
-                  className="block px-4 py-2 text-left rounded-md text-sm font-medium text-gray-700 hover:bg-blue-50"
-                  onClick={()=> {
-                    logout();
-                    onClose();
-                  }}
-              > 
-                Log Out 
-              </button>
+              <NavLink
+                to="/settings"
+                className={mobileLinkClass}
+                onClick={onClose}
+              >
+                Settings
+              </NavLink>
             </>
           )}
         </div>

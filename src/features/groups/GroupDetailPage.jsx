@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '../../../supabase';
+import { getGroupMembers, updateGroupInfo, leaveGroup, getMatchingClassmates } from './service.js';
+import { getSchedule } from '../schedules/service.js';
 import GroupMembers from './GroupMembers';
 import SkeletonWrapper from '../../components/SkeletonWrapper';
+import logger from '../../utils/logger.js';
+import useSession from '../auth/useSession.js';
 
 export default function GroupDetailPage() {
     const { groupId } = useParams();
@@ -14,71 +17,53 @@ export default function GroupDetailPage() {
     const [leaving, setLeaving] = useState(false);
     const [currentUserId, setCurrentUserId] = useState(null);
     const [currentUserRole, setCurrentUserRole] = useState(null);
-    const [sessionToken, setSessionToken] = useState(null);
-    const [currentJoinable, setCurrentJoinable] = useState(null);
-    const [togglingJoinable, setTogglingJoinable] = useState(false);
     const [userSchedule, setUserSchedule] = useState([]);
     const [matchingClassmates, setMatchingClassmates] = useState([]);
     const [scheduleYear, setScheduleYear] = useState(new Date().getFullYear());
     const [scheduleTerm, setScheduleTerm] = useState('fall');
     const [scheduleLoading, setScheduleLoading] = useState(false);
+    const { session, isSessionLoading } = useSession();
 
     useEffect(() => {
+        if (isSessionLoading) return;
+        if (!session) return; // if somehow unauthenticated, guard can redirect, or show message
+        if (!groupId) return;
+
         fetchGroupDetails();
-    }, [groupId]);
+    }, [groupId, session, isSessionLoading]);
+
 
     const fetchScheduleAndMatches = async () => {
-        if (!sessionToken || !groupId) return;
-        
+        if (!groupId) return;
+
         setScheduleLoading(true);
         try {
             // Fetch user's schedule
-            const scheduleResponse = await fetch(`http://localhost:5000/api/schedules/?year=${scheduleYear}&term=${scheduleTerm}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${sessionToken}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (scheduleResponse.ok) {
-                const scheduleData = await scheduleResponse.json();
-                setUserSchedule(scheduleData);
-            }
+            const scheduleData = await getSchedule(scheduleYear.toString(), scheduleTerm);
+            setUserSchedule(scheduleData);
 
             // Fetch matching classmates
-            const matchesResponse = await fetch(`http://localhost:5000/api/schedules/matching-classmates?year=${scheduleYear}&term=${scheduleTerm}&group_id=${groupId}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${sessionToken}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (matchesResponse.ok) {
-                const matchesData = await matchesResponse.json();
-                setMatchingClassmates(matchesData);
-                console.log(matchesData);
-            }
+            const matchesData = await getMatchingClassmates(groupId, scheduleYear.toString(), scheduleTerm);
+            setMatchingClassmates(matchesData);
         } catch (err) {
-            console.error('Failed to fetch schedule data:', err);
+            logger.error('Failed to fetch schedule data:', err);
         } finally {
             setScheduleLoading(false);
         }
     };
 
     useEffect(() => {
-        if (groupId && sessionToken) {
+        if (groupId) {
             fetchScheduleAndMatches();
         }
-    }, [groupId, sessionToken, scheduleYear, scheduleTerm]);
+    }, [groupId, scheduleYear, scheduleTerm]);
 
     const fetchGroupDetails = async () => {
         setLoading(true);
         setError(null);
+        
         try {
-            const { data: { session } } = await supabase.auth.getSession();
-            
+            // Get current user info
             if (!session) {
                 setError('No active session');
                 setLoading(false);
@@ -86,84 +71,26 @@ export default function GroupDetailPage() {
             }
 
             setCurrentUserId(session.user.id);
-            setSessionToken(session.access_token);
 
             // Fetch group members
-            const response = await fetch(`http://localhost:5000/api/groups/${groupId}/members`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${session.access_token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
+            const membersData = await getGroupMembers(groupId);
+            setMembers(membersData);
 
-            if (!response.ok) {
-                throw new Error(`Failed to fetch group details: ${response.status}`);
-            }
-
-            const result = await response.json();
-            setMembers(result);
-            
             // Find current user's role
-            const currentMember = result.find(member => member[0] === session.user.id);
+            const currentMember = membersData.find(member => member[0] === session.user.id);
             if (currentMember) {
                 setCurrentUserRole(currentMember[2]);
             }
-            
+
             setGroup({
                 id: groupId,
-                memberCount: result.length,
+                memberCount: membersData.length,
             });
-            // fetch joinable status for this group
-            try {
-                const groupsResp = await fetch('http://localhost:5000/api/groups/', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${session.access_token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-                if (groupsResp.ok) {
-                    const groupsList = await groupsResp.json();
-                    const found = groupsList.find(g => String(g[0]) === String(groupId));
-                    if (found) setCurrentJoinable(!!found[5]);
-                }
-            } catch (err) {
-                console.warn('Could not fetch joinable status', err);
-            }
         } catch (err) {
             setError(err.message);
-            console.error('Request failed:', err);
+            logger.error('Request failed:', err);
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleToggleJoinable = async () => {
-        if (!window.confirm('Toggle group joinable status?')) return;
-        setTogglingJoinable(true);
-        setError(null);
-        try {
-            const response = await fetch('http://localhost:5000/api/groups/change-joinable', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${sessionToken}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ group_id: groupId, joinable: !currentJoinable }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Failed to change joinable: ${response.status}`);
-            }
-
-            setCurrentJoinable(!currentJoinable);
-        } catch (err) {
-            setError(err.message);
-            console.error('Toggle joinable failed:', err);
-        } finally {
-            setTogglingJoinable(false);
         }
     };
 
@@ -173,32 +100,12 @@ export default function GroupDetailPage() {
         setLeaving(true);
         setError(null);
         try {
-            const { data: { session } } = await supabase.auth.getSession();
-            
-            if (!session) {
-                setError('No active session');
-                setLeaving(false);
-                return;
-            }
-
-            const response = await fetch('http://localhost:5000/api/groups/leave', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${session.access_token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ group_id: groupId }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Failed to leave group: ${response.status}`);
-            }
-
+            await leaveGroup(groupId);
             navigate('/mygroups');
+            logger.info('Left group successfully');
         } catch (err) {
             setError(err.message);
-            console.error('Leave failed:', err);
+            logger.error('Leave failed:', err);
             setLeaving(false);
         }
     };
@@ -231,6 +138,7 @@ export default function GroupDetailPage() {
 
             {true && (
                 <>
+                    <SkeletonWrapper loading={loading}>
                     <div className="mb-6 p-4 border rounded bg-gray-50">
                         <h2 className="m-0 mb-3 text-lg font-medium">Group Info</h2>
                         <p className="my-2 text-gray-600">ID: <strong>{group?.id}</strong></p>
@@ -243,27 +151,20 @@ export default function GroupDetailPage() {
                             >
                                 {leaving ? 'Leaving...' : 'Leave Group'}
                             </button>
-                            {(currentUserRole === 'admin' || currentUserRole === 'owner') && currentJoinable !== null && (
-                                <button
-                                    onClick={handleToggleJoinable}
-                                    disabled={togglingJoinable}
-                                    className={`px-4 py-2 rounded text-white ${togglingJoinable ? 'cursor-not-allowed opacity-60' : (currentJoinable ? 'bg-green-600' : 'bg-gray-600')}`}
-                                >
-                                    {togglingJoinable ? (currentJoinable ? 'Closing...' : 'Opening...') : (currentJoinable ? 'Open to Join' : 'Closed')}
-                                </button>
-                            )}
                         </div>
                     </div>
+</SkeletonWrapper>
 
-                    <GroupMembers 
-                        members={members} 
-                        memberCount={group?.memberCount} 
+<SkeletonWrapper loading={loading}>
+                    <GroupMembers
+                        members={members}
+                        memberCount={group?.memberCount}
                         currentUserId={currentUserId}
                         currentUserRole={currentUserRole}
                         groupId={groupId}
-                        sessionToken={sessionToken}
                         onMemberAction={fetchGroupDetails}
                     />
+                    </SkeletonWrapper>
 
                     {/* Class Matching Section */}
                     <div className="mt-8 p-4 border rounded bg-blue-50">

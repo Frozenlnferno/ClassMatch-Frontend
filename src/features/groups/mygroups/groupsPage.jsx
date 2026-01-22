@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../../../../supabase';
+import { getUserGroups } from '../service.js';
 import CreateGroupForm from './CreateGroupForm';
 import JoinGroupForm from './JoinGroupForm';
 import GroupsList from './GroupsList';
+import logger from '../../../utils/logger.js';
 
 export default function MyGroupsPage() {
     const [groups, setGroups] = useState([]);
@@ -17,31 +18,11 @@ export default function MyGroupsPage() {
         setLoading(true);
         setError(null);
         try {
-            const { data: { session } } = await supabase.auth.getSession();
-            
-            if (!session) {
-                setError('No active session');
-                setLoading(false);
-                return;
-            }
-
-            const response = await fetch('http://localhost:5000/api/groups/', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${session.access_token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to fetch groups: ${response.status}`);
-            }
-
-            const result = await response.json();
+            const result = await getUserGroups();
             setGroups(result);
         } catch (err) {
             setError(err.message);
-            console.error('Request failed:', err);
+            logger.error('Failed to fetch groups:', err);
         } finally {
             setLoading(false);
         }
@@ -55,7 +36,7 @@ export default function MyGroupsPage() {
         setError(errorMsg);
     };
 
-    if (loading) return <div className="p-5">Loading groups...</div>;
+    if (loading) return <div className="p-5 text-center">Loading groups...</div>;
 
     return (
         <div className="p-5 max-w-2xl mx-auto">

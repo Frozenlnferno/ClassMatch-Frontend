@@ -49,7 +49,7 @@ export default function Navbar() {
           </div>
         )}
       </div>
-      <div className="text-sm"> {accessToken} </div> {/* THIS IS TEMPORARY!!! */}
+      <p>{session?.access_token}</p>
     </nav>
   );
 }

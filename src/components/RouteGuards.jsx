@@ -7,9 +7,9 @@ import useSession from "../features/auth/useSession.js";
  * @returns {JSX.Element} Component or redirect
  */
 export function ProtectedRoute({ element }) {
-  const { session, isLoading } = useSession();
+  const { session, isSessionLoading } = useSession();
 
-  if (isLoading) {
+  if (isSessionLoading) {
     return <div>Loading...</div>; // or a spinner
   }
 
@@ -23,9 +23,9 @@ export function ProtectedRoute({ element }) {
  * @returns {JSX.Element} Component or redirect
  */
 export function PublicRoute({ element }) {
-  const { session, isLoading } = useSession();
+  const { session, isSessionLoading } = useSession();
 
-  if (isLoading) {
+  if (isSessionLoading) {
     return <div>Loading...</div>; // or a spinner
   }
 

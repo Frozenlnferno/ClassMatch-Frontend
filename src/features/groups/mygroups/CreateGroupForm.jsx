@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { supabase } from '../../../../supabase';
+import { createGroup } from '../service.js';
+import logger from '../../../utils/logger.js';
 
 export default function CreateGroupForm({ onCreateSuccess, onError }) {
     const [groupName, setGroupName] = useState('');
@@ -14,29 +15,14 @@ export default function CreateGroupForm({ onCreateSuccess, onError }) {
         setSubmitting(true);
         onError && onError(null);
         try {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) return onError && onError('No active session');
-
-            const response = await fetch('http://localhost:5000/api/groups/create', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${session.access_token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ groupName, description, joinable }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Failed to create group: ${response.status}`);
-            }
-
+            await createGroup({ groupName, description, joinable });
             setGroupName('');
             setDescription('');
             setJoinable(true);
             onCreateSuccess && onCreateSuccess();
+            logger.info('Group created successfully');
         } catch (err) {
-            console.error('Create failed:', err);
+            logger.error('Create failed:', err);
             onError && onError(err.message);
         } finally {
             setSubmitting(false);

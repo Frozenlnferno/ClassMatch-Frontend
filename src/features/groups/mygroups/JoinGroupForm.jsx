@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { supabase } from '../../../../supabase';
+import { joinGroup } from '../service.js';
+import logger from '../../../utils/logger.js';
 
 export default function JoinGroupForm({ onJoinSuccess, onError }) {
     const [joinCode, setJoinCode] = useState('');
@@ -10,34 +11,16 @@ export default function JoinGroupForm({ onJoinSuccess, onError }) {
         if (!joinCode.trim()) return;
 
         try {
-            const { data: { session } } = await supabase.auth.getSession();
-            
-            if (!session) {
-                onError('No active session');
-                return;
-            }
-
             setJoiningCode(joinCode);
-            const response = await fetch(`http://localhost:5000/api/groups/join?join_code=${encodeURIComponent(joinCode)}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${session.access_token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Failed to join group: ${response.status}`);
-            }
-
+            await joinGroup(joinCode);
             setJoinCode('');
             setJoiningCode('');
             onJoinSuccess();
+            logger.info('Joined group successfully');
         } catch (err) {
             onError(err.message);
             setJoiningCode('');
-            console.error('Join failed:', err);
+            logger.error('Join failed:', err);
         }
     };
 

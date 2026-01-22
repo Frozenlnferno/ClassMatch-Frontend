@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { kickMember, changeMemberRole } from './service.js';
+import logger from '../../utils/logger.js';
 
-export default function GroupMembers({ members, memberCount, currentUserId, currentUserRole, groupId, sessionToken, onMemberAction }) {
+export default function GroupMembers({ members, memberCount, currentUserId, currentUserRole, groupId, onMemberAction }) {
     const [actionInProgress, setActionInProgress] = useState(null);
     const [error, setError] = useState(null);
-    
+
     const isAdmin = currentUserRole === 'admin' || currentUserRole === 'owner';
 
     const handleKickMember = async (memberId) => {
@@ -12,24 +14,12 @@ export default function GroupMembers({ members, memberCount, currentUserId, curr
         setActionInProgress(`kick-${memberId}`);
         setError(null);
         try {
-            const response = await fetch(`http://localhost:5000/api/groups/${groupId}/kick`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${sessionToken}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ member_id: memberId }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to kick member');
-            }
-
+            await kickMember(groupId, memberId);
             onMemberAction();
+            logger.info('Member kicked successfully');
         } catch (err) {
             setError(err.message);
-            console.error('Kick failed:', err);
+            logger.error('Kick failed:', err);
         } finally {
             setActionInProgress(null);
         }
@@ -39,24 +29,12 @@ export default function GroupMembers({ members, memberCount, currentUserId, curr
         setActionInProgress(`role-${memberId}`);
         setError(null);
         try {
-            const response = await fetch(`http://localhost:5000/api/groups/${groupId}/change-role`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${sessionToken}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ group_id: groupId, member_id: memberId, new_role: newRole }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to change role');
-            }
-
+            await changeMemberRole(groupId, memberId, newRole);
             onMemberAction();
+            logger.info('Role changed successfully');
         } catch (err) {
             setError(err.message);
-            console.error('Role change failed:', err);
+            logger.error('Role change failed:', err);
         } finally {
             setActionInProgress(null);
         }
