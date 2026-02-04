@@ -8,9 +8,9 @@ export default function Navbar() {
   const { session, accessToken } = useSession();
   
   return (
-    <nav className="w-full bg-white border-b shadow-sm">
+    <nav className="w-full bg-white border-b border-gray-400 shadow-sm">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="flex items-center justify-between h-14">
+        <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center no-underline">
               <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold mr-3">CM</div>
@@ -49,7 +49,6 @@ export default function Navbar() {
           </div>
         )}
       </div>
-      <p>{session?.access_token}</p>
     </nav>
   );
 }
