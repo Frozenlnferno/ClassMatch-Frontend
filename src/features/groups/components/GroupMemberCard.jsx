@@ -4,7 +4,7 @@ import { ChevronUp, ChevronDown, UserX, MoreHorizontal } from "lucide-react"
 const roleStyles = {
   owner: "bg-blue-500 text-white border border-blue-600",
   admin: "bg-blue-300 text-white border border-blue-400",
-  member: "bg-gray-100 text-muted-foreground border border-gray-200",
+  member: "bg-gray-100 text-slate-600 border border-gray-200",
 }
 
 const roleLabels = {
@@ -30,7 +30,7 @@ export function GroupMemberCard({
     <article className="flex items-center justify-between p-3 rounded-lg border border-gray-300 hover:shadow-sm transition-all hover:border-blue-500 hover:border-l-3 hover:translate-x-1">
       <div className="flex items-center gap-3">
         <div
-          className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium"
+          className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium"
           aria-hidden="true"
         >
           {member.name.charAt(0).toUpperCase()}

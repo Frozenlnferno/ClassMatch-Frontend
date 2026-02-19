@@ -17,11 +17,11 @@ export function ScheduleListing({ schedule, members, pastClassMembers = {} }) {
       <header className="mb-6">
         <div className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-blue-500" aria-hidden="true" />
-          <h2 id="schedule-heading" className="text-xl font-semibold text-foreground">
+          <h2 id="schedule-heading" className="text-xl font-semibold text-slate-900">
             Your Schedule
           </h2>
         </div>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-sm text-slate-600 mt-1">
           {schedule.length} {schedule.length === 1 ? "class" : "classes"} this semester
         </p>
       </header>

@@ -1,155 +1,182 @@
-import { useEffect, useState } from 'react';
-import { getAllSchedules, deleteCourses, deleteSchedule } from './service.js';
-import logger from '../../utils/logger.js';
-import { ScheduleUploadForm, ScheduleList } from './components';
-import Modal from '../../components/Modal.jsx';
+import { useCallback, useState } from "react"
+import { SchedulesHeader } from "./components/schedules-header"
+import { SchedulesToolbar } from "./components/schedules-toolbar"
+import { EmptySchedules } from "./components/empty-schedules"
+import { ClassList } from "./components/class-list"
+import { CreateScheduleModal } from "./components/create-schedule-modal"
+import { DeleteScheduleDialog } from "./components/delete-schedule-dialog"
+import { AddClassModal } from "./components/add-class-modal"
+import { INITIAL_SCHEDULES } from "./components/data"
 
-export default function SchedulePage() {
-    const [schedules, setSchedules] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [expandedSchedules, setExpandedSchedules] = useState(new Set());
-    const [selectedCourses, setSelectedCourses] = useState(new Map()); // scheduleKey -> Set of CRNs
-    const [formModalVisible, setFormModalVisible] = useState(false);
+export default function SchedulesPage() {
+  const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [addClassModalOpen, setAddClassModalOpen] = useState(false)
+  const [schedules, setSchedules] = useState(INITIAL_SCHEDULES)
+  const [selectedScheduleId, setSelectedScheduleId] = useState(INITIAL_SCHEDULES[0]?.id ?? "")
+  const [selectedClassIds, setSelectedClassIds] = useState(new Set())
 
-    const loadSchedules = async () => {
-        setFormModalVisible(false);
-        try {
-            setLoading(true);
-            setError(null);
-            const data = await getAllSchedules();
-            setSchedules(data);
-        } catch (err) {
-            logger.error('Failed to load schedules:', err);
-            setError('Failed to load schedules. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
+  const currentSchedule = schedules.find((s) => s.id === selectedScheduleId)
+  const scheduleName = currentSchedule ? `${currentSchedule.term} ${currentSchedule.year}` : ""
 
-    const handleCourseSelect = (scheduleKey, crn) => {
-        setSelectedCourses(prev => {
-            const newMap = new Map(prev);
-            const crns = newMap.get(scheduleKey) || new Set();
-            const newCrns = new Set(crns);
-            if (newCrns.has(crn)) {
-                newCrns.delete(crn);
-            } else {
-                newCrns.add(crn);
+  const toggleSelectClass = useCallback((id) => {
+    setSelectedClassIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }, [])
+
+  const selectAll = useCallback(() => {
+    if (!currentSchedule) return
+    setSelectedClassIds(new Set(currentSchedule.classes.map((c) => c.id)))
+  }, [currentSchedule])
+
+  const deselectAll = useCallback(() => {
+    setSelectedClassIds(new Set())
+  }, [])
+
+  const changeSchedule = useCallback((id) => {
+    setSelectedScheduleId(id)
+    setSelectedClassIds(new Set())
+  }, [])
+
+  const deleteSelectedClasses = useCallback(() => {
+    setSchedules((prev) =>
+      prev.map((schedule) =>
+        schedule.id === selectedScheduleId
+          ? {
+              ...schedule,
+              classes: schedule.classes.filter((classInfo) => !selectedClassIds.has(classInfo.id)),
             }
-            if (newCrns.size === 0) {
-                newMap.delete(scheduleKey);
-            } else {
-                newMap.set(scheduleKey, newCrns);
-            }
-            return newMap;
-        });
-    };
+          : schedule
+      )
+    )
+    setSelectedClassIds(new Set())
+  }, [selectedScheduleId, selectedClassIds])
 
-    const handleBulkDelete = async (year, term) => {
-        const scheduleKey = `${year}-${term}`;
-        const selectedCrns = selectedCourses.get(scheduleKey);
+  const deleteSchedule = useCallback(() => {
+    setSchedules((prev) => {
+      const next = prev.filter((schedule) => schedule.id !== selectedScheduleId)
+      setSelectedScheduleId(next[0]?.id ?? "")
+      return next
+    })
+    setSelectedClassIds(new Set())
+  }, [selectedScheduleId])
 
-        if (!selectedCrns || selectedCrns.size === 0) return;
+  const createSchedule = useCallback((term, year, classes) => {
+    const newId = `s-${Date.now()}`
+    const nextSchedule = { id: newId, term, year, classes }
+    setSchedules((prev) => [nextSchedule, ...prev])
+    setSelectedScheduleId(newId)
+    setSelectedClassIds(new Set())
+  }, [])
 
-        if (!confirm(`Delete ${selectedCrns.size} selected course(s)?`)) return;
+  const createByPdf = useCallback(
+    (term, year, _file) => {
+      createSchedule(term, year, [])
+    },
+    [createSchedule]
+  )
 
-        try {
-            await deleteCourses(Array.from(selectedCrns), year.toString(), term);
-            setSelectedCourses(prev => {
-                const newMap = new Map(prev);
-                newMap.delete(scheduleKey);
-                return newMap;
-            });
-            await loadSchedules();
-            logger.info('Courses deleted successfully');
-        } catch (err) {
-            setError(err.message);
-            logger.error('Failed to delete courses:', err);
-        }
-    };
+  const createByCrns = useCallback(
+    (term, year, crns) => {
+      const classes = crns.map((crn, index) => ({
+        id: `new-${Date.now()}-${index}`,
+        title: `Class ${crn}`,
+        category: "TBD",
+        courseNumber: "---",
+        section: "---",
+        crn,
+      }))
+      createSchedule(term, year, classes)
+    },
+    [createSchedule]
+  )
 
-    const handleDeleteSchedule = async (year, term) => {
-        if (!confirm(`Delete entire ${term} ${year} schedule?`)) return;
+  const addClasses = useCallback(
+    (crns) => {
+      const classes = crns.map((crn, index) => ({
+        id: `add-${Date.now()}-${index}`,
+        title: `Class ${crn}`,
+        category: "TBD",
+        courseNumber: "---",
+        section: "---",
+        crn,
+      }))
+      setSchedules((prev) =>
+        prev.map((schedule) =>
+          schedule.id === selectedScheduleId
+            ? { ...schedule, classes: [...schedule.classes, ...classes] }
+            : schedule
+        )
+      )
+    },
+    [selectedScheduleId]
+  )
 
-        try {
-            await deleteSchedule(year.toString(), term);
-            // Clear expanded state and selected courses for this schedule
-            const scheduleKey = `${year}-${term}`;
-            setExpandedSchedules(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(scheduleKey);
-                return newSet;
-            });
-            setSelectedCourses(prev => {
-                const newMap = new Map(prev);
-                newMap.delete(scheduleKey);
-                return newMap;
-            });
-            await loadSchedules();
-            logger.info('Schedule deleted successfully');
-        } catch (err) {
-            setError(err.message);
-            logger.error('Failed to delete schedule:', err);
-        }
-    };
+  const handleDeleteSchedule = () => {
+    deleteSchedule()
+    setDeleteDialogOpen(false)
+  }
 
-    const toggleScheduleExpansion = (key) => {
-        setExpandedSchedules(prev => {
-            const newSet = new Set(prev);
-            if (newSet.has(key)) {
-                newSet.delete(key);
-            } else {
-                newSet.add(key);
-            }
-            return newSet;
-        });
-    };
+  return (
+    <div className="min-h-screen">
+      <SchedulesHeader onCreateSchedule={() => setCreateModalOpen(true)} />
 
-    useEffect(() => {
-        loadSchedules();
-    }, []);
+      <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
+        {schedules.length === 0 ? (
+          <EmptySchedules onCreateSchedule={() => setCreateModalOpen(true)} />
+        ) : (
+          <>
+            <SchedulesToolbar
+              schedules={schedules.map((s) => ({ id: s.id, term: s.term, year: s.year }))}
+              selectedScheduleId={selectedScheduleId}
+              onSelectSchedule={changeSchedule}
+              onAddClasses={() => setAddClassModalOpen(true)}
+              onDeleteSchedule={() => setDeleteDialogOpen(true)}
+            />
 
-    return (
-        <div className="max-w-6xl mx-auto p-6">
-            <div className="flex items-center justify-between mb-8">
-                <h1 className="text-4xl font-bold text-gray-900">SCHEDULES</h1>
-                <button
-                    onClick={() => setFormModalVisible(true)}
-                    className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                >
-                    Upload Schedule
-                </button>
-            </div>
+            <hr className="my-6 border-gray-200" />
 
-            {/* Error Display */}
-            {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
-                    <p className="text-red-800">{error}</p>
-                </div>
+            {currentSchedule && (
+              <ClassList
+                classes={currentSchedule.classes}
+                selectedClassIds={selectedClassIds}
+                onToggleSelect={toggleSelectClass}
+                onSelectAll={selectAll}
+                onDeselectAll={deselectAll}
+                onDeleteSelected={deleteSelectedClasses}
+              />
             )}
+          </>
+        )}
+      </main>
 
-            <Modal title="Upload Schedule" open={formModalVisible} onClose={() => setFormModalVisible(false)}>
-                <ScheduleUploadForm onUploadSuccess={loadSchedules} />
-            </Modal>
+      {/* Modals */}
+      <CreateScheduleModal
+        open={createModalOpen}
+        onOpenChange={setCreateModalOpen}
+        onCreateByPdf={createByPdf}
+        onCreateByCrns={createByCrns}
+      />
 
-            {/* Schedules Display */}
-            {loading ? (
-                <div className="text-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="text-gray-600 mt-4">Loading schedules...</p>
-                </div>
-            ) : (
-                <ScheduleList
-                    schedules={schedules}
-                    expandedSchedules={expandedSchedules}
-                    selectedCourses={selectedCourses}
-                    onToggleExpansion={toggleScheduleExpansion}
-                    onCourseSelect={handleCourseSelect}
-                    onBulkDelete={handleBulkDelete}
-                    onDeleteSchedule={handleDeleteSchedule}
-                />
-            )}
-        </div>
-    );
+      {currentSchedule && (
+        <>
+          <DeleteScheduleDialog
+            open={deleteDialogOpen}
+            onOpenChange={setDeleteDialogOpen}
+            scheduleName={scheduleName}
+            onConfirmDelete={handleDeleteSchedule}
+          />
+          <AddClassModal
+            open={addClassModalOpen}
+            onOpenChange={setAddClassModalOpen}
+            onAddClasses={addClasses}
+          />
+        </>
+      )}
+    </div>
+  )
 }

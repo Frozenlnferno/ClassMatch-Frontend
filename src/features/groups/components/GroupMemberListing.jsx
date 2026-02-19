@@ -36,7 +36,7 @@ export function GroupMemberListing({
     <aside className="flex flex-col h-full" aria-label="Group information">
       <header className="mb-6">
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h1 className="text-2xl font-semibold text-foreground text-balance">
+          <h1 className="text-2xl font-semibold text-slate-900 text-balance">
             {group.name}
           </h1>
         </div>
@@ -69,7 +69,7 @@ export function GroupMemberListing({
           </div>
         ) : (
           <div className="group relative">
-            <p className="text-muted-foreground text-sm leading-relaxed pr-8">
+            <p className="text-slate-600 text-sm leading-relaxed pr-8">
               {group.description}
             </p>
             {canEdit && (
@@ -84,14 +84,14 @@ export function GroupMemberListing({
           </div>
         )}
         
-        <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 mt-4 text-sm text-slate-600">
           <Users className="h-4 w-4" aria-hidden="true" />
           <span>{members.length} {members.length === 1 ? "member" : "members"}</span>
         </div>
       </header>
 
       <section aria-labelledby="members-heading" className="flex-1">
-        <h2 id="members-heading" className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">
+        <h2 id="members-heading" className="text-sm font-medium text-slate-600 uppercase tracking-wide mb-3">
           Members
         </h2>
         <ul className="flex flex-col gap-2" role="list" aria-label="Group members">

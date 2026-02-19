@@ -120,12 +120,12 @@ export default function GroupDetailPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-slate-50">
       <div className="max-w-7xl mx-auto px-6 py-8">
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-4 xl:col-span-3">
-            <div className="bg-card border border-gray-300 rounded-xl p-6 sticky top-8 bg-white">
+            <div className="bg-white border border-gray-300 rounded-xl p-6 sticky top-8 bg-white">
               <GroupMemberListing
                 group={group}
                 members={members}
@@ -140,7 +140,7 @@ export default function GroupDetailPage() {
           </div>
 
           <div className="lg:col-span-8 xl:col-span-9">
-            <div className="bg-card border border-border border-gray-300 rounded-xl p-6 bg-white">
+            <div className="bg-white border border-slate-200 border-gray-300 rounded-xl p-6 bg-white">
               <ScheduleListing schedule={userSchedule} members={members} pastClassMembers={pastClassMembers} />
             </div>
           </div>

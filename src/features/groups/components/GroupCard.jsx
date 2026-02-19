@@ -17,8 +17,8 @@ export default function GroupCard({ group }) {
                         <Users className="h-6 w-6 text-blue-600" />
                     </div>
                     <div className="flex flex-col gap-1">
-                        <h3 className="font-semibold text-foreground"> {group.name} </h3>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <h3 className="font-semibold text-slate-900"> {group.name} </h3>
+                        <div className="flex items-center gap-4 text-sm text-slate-600">
                             <span className="flex items-center gap-1">
                                 <Users className="h-4 w-4" />
                                 <span className="text-gray-600">
@@ -29,7 +29,7 @@ export default function GroupCard({ group }) {
                     </div>
                 </div>
                 <div className="flex items-center gap-3 ">
-                    <ChevronRight className="h-6 w-6 text-muted-foreground " />
+                    <ChevronRight className="h-6 w-6 text-slate-600 " />
                 </div>
             </section>
         </div>
