@@ -3,7 +3,7 @@ import './App.css';
 import SignUpPage from "./features/auth/signupPage.jsx";
 import LoginPage from "./features/auth/loginPage.jsx";
 // import MyGroupsPage from "./features/groups/mygroups/groupsPage.jsx";
-// import GroupDetailPage from "./features/groups/GroupDetailPage.jsx";
+import GroupDetailPage from "./features/groups/GroupDetailPage.jsx";
 // import JoinGroupPage from "./features/groups/JoinGroupPage";
 import SchedulePage from "./features/schedules/SchedulePage.jsx";
 import MyGroupsPage from "./features/groups/MyGroupsPage.jsx";
@@ -24,6 +24,8 @@ function App() {
           
           <Route path="/schedule" element={<ProtectedRoute element={<SchedulePage/>} />} />
           <Route path="/mygroups" element={<ProtectedRoute element={<MyGroupsPage/>} />} />
+          
+          <Route path="/groups/1" element={<ProtectedRoute element={<GroupDetailPage/>} />} />
           {/* <Route path="/groups/:groupId" element={<ProtectedRoute element={<GroupDetailPage/>} />} /> */}
           <Route path="/settings" element={<ProtectedRoute element={<SettingsPage/>} />} />
         </Route>
