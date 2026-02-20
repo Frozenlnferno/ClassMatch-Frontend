@@ -8,7 +8,7 @@ export default function Navbar() {
   const { session, accessToken } = useSession();
   
   return (
-    <nav className="w-full bg-white border-b border-gray-400 shadow-sm">
+    <nav className="w-full bg-white shadow-sm">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">

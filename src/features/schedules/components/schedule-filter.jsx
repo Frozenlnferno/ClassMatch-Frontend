@@ -15,7 +15,7 @@ export function ScheduleFilter({
         value={selectedScheduleId}
         onChange={(e) => onSelectSchedule(e.target.value)}
         aria-label="Select a schedule"
-        className="cm-select w-64 text-gray-900"
+        className="h-10 w-64 rounded-md border border-slate-300 bg-white px-3 text-sm text-gray-900 shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
       >
         {schedules.map((schedule) => (
           <option key={schedule.id} value={schedule.id}>

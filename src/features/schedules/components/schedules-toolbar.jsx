@@ -9,7 +9,7 @@ export function SchedulesToolbar({
   onDeleteSchedule,
 }) {
   return (
-    <div className="cm-panel flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
       <ScheduleFilter
         schedules={schedules}
         selectedScheduleId={selectedScheduleId}
@@ -18,7 +18,7 @@ export function SchedulesToolbar({
       <div className="flex items-center gap-2">
         <button
           type="button"
-          className="cm-btn cm-btn-sm cm-btn-secondary"
+          className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           onClick={onAddClasses}
         >
           <BookPlus className="size-4" />
@@ -27,7 +27,7 @@ export function SchedulesToolbar({
         <button
           type="button"
           onClick={onDeleteSchedule}
-          className="cm-btn cm-btn-sm cm-btn-danger-outline"
+          className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-rose-300 bg-white px-3 text-sm font-medium text-rose-700 transition hover:bg-rose-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
         >
           <Trash2 className="size-4" />
           Delete Schedule

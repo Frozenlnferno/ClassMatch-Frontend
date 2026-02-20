@@ -2,7 +2,7 @@ import { Plus } from "lucide-react"
 
 export function EmptySchedules({ onCreateSchedule }) {
   return (
-    <div className="cm-panel flex flex-col items-center justify-center border-dashed py-20 text-center">
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white py-20 text-center shadow-sm">
       <div className="mb-4 rounded-full bg-blue-100 p-4">
         <svg
           className="size-8 text-blue-600"
@@ -25,7 +25,7 @@ export function EmptySchedules({ onCreateSchedule }) {
       </p>
       <button
         type="button"
-        className="cm-btn cm-btn-md cm-btn-primary mt-6"
+        className="mt-6 inline-flex h-10 items-center justify-center gap-2 rounded-md border border-blue-600 bg-blue-600 px-4 text-sm font-medium text-white transition hover:border-blue-700 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         onClick={onCreateSchedule}
       >
         <Plus className="size-4" />

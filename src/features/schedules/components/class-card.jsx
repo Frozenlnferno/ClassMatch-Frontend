@@ -2,11 +2,11 @@
 import { BookOpen } from "lucide-react"
 
 const BLOCK_TONES = [
-  "cm-schedule-block--indigo",
-  "cm-schedule-block--blue",
-  "cm-schedule-block--teal",
-  "cm-schedule-block--amber",
-  "cm-schedule-block--rose",
+  "border-indigo-200 bg-indigo-50 text-indigo-700",
+  "border-blue-200 bg-blue-50 text-blue-700",
+  "border-teal-200 bg-teal-50 text-teal-700",
+  "border-amber-200 bg-amber-50 text-amber-700",
+  "border-rose-200 bg-rose-50 text-rose-700",
 ]
 
 function getBlockTone(category = "") {
@@ -60,7 +60,7 @@ export function ClassCard({ classInfo, isSelected, onToggleSelect }) {
               {classInfo.title}
             </h3>
           </div>
-          <span className={`cm-schedule-block ${getBlockTone(classInfo.category)} shrink-0 px-2 py-0.5 font-mono text-xs`}>
+          <span className={`inline-flex shrink-0 items-center rounded-md border px-2 py-0.5 font-mono text-xs font-medium ${getBlockTone(classInfo.category)}`}>
             {classInfo.category} {classInfo.courseNumber}
           </span>
         </div>

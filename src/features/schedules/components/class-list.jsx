@@ -15,7 +15,7 @@ export function ClassList({
   return (
     <section aria-label="Class list">
       {/* Bulk actions bar */}
-      <div className="cm-panel mb-4 flex items-center justify-between px-4 py-3">
+      <div className="mb-4 flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <input
@@ -44,7 +44,7 @@ export function ClassList({
             <button
               type="button"
               onClick={onDeselectAll}
-              className="cm-btn cm-btn-xs cm-btn-secondary"
+              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-slate-300 bg-white px-2.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
               <X className="size-4" />
               Clear
@@ -52,7 +52,7 @@ export function ClassList({
             <button
               type="button"
               onClick={onDeleteSelected}
-              className="cm-btn cm-btn-xs cm-btn-danger"
+              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-rose-600 bg-rose-600 px-2.5 text-xs font-medium text-white transition hover:border-rose-700 hover:bg-rose-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
             >
               <Trash2 className="size-4" />
               Remove {selectedClassIds.size} {selectedClassIds.size === 1 ? "class" : "classes"}

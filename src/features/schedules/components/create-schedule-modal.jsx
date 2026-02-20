@@ -93,9 +93,9 @@ export function CreateScheduleModal({
 
   return (
     <div className="fixed inset-0 z-50">
-      <div className="cm-modal-overlay" aria-hidden="true" />
-      <div className="cm-modal-wrap">
-      <div className="cm-modal-panel flex max-h-[90vh] w-full max-w-2xl flex-col p-6">
+      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-[1px]" aria-hidden="true" />
+      <div className="absolute inset-0 flex items-center justify-center p-4">
+      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-xl border border-slate-200 bg-white p-6 shadow-xl">
         <div className="mb-4">
           <h2 className="text-lg font-medium text-gray-900">Create New Schedule</h2>
           <p className="text-sm text-gray-600">
@@ -105,14 +105,14 @@ export function CreateScheduleModal({
 
         <div className="mb-4 grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="term-select" className="cm-label">
+            <label htmlFor="term-select" className="text-xs font-medium text-gray-700">
               Term
             </label>
             <select
               id="term-select"
               value={term}
               onChange={(e) => setTerm(e.target.value)}
-              className="cm-select"
+              className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
               <option value="">Select term</option>
               <option value="Spring">Spring</option>
@@ -122,14 +122,14 @@ export function CreateScheduleModal({
             </select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="year-select" className="cm-label">
+            <label htmlFor="year-select" className="text-xs font-medium text-gray-700">
               Year
             </label>
             <select
               id="year-select"
               value={year}
               onChange={(e) => setYear(e.target.value)}
-              className="cm-select"
+              className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
               <option value="">Select year</option>
               {years.map((y) => (
@@ -282,14 +282,14 @@ export function CreateScheduleModal({
                     onChange={(e) => setCrnInput(e.target.value)}
                     onKeyDown={handleCrnKeyDown}
                     placeholder="e.g. 12345, 67890, 11223"
-                    className="cm-input font-mono"
+                    className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 font-mono text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                   />
                   <button
                     type="button"
                     onClick={addMultipleCrns}
                     disabled={!crnInput.trim()}
                     aria-label="Add CRNs"
-                    className="cm-btn cm-btn-sm cm-btn-secondary"
+                    className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Plus className="size-4" />
                     Add
@@ -315,7 +315,7 @@ export function CreateScheduleModal({
                     {crns.map((crn) => (
                       <span
                         key={crn}
-                        className="cm-chip px-2 py-1 pr-1 font-mono text-xs"
+                        className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2 py-1 pr-1 font-mono text-xs text-blue-800"
                       >
                         {crn}
                         <button
@@ -339,7 +339,7 @@ export function CreateScheduleModal({
           <button
             type="button"
             onClick={() => handleOpenChange(false)}
-            className="cm-btn cm-btn-md cm-btn-secondary"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             Cancel
           </button>
@@ -347,7 +347,7 @@ export function CreateScheduleModal({
             type="button"
             onClick={handleSubmit}
             disabled={tab === "pdf" ? !canSubmitPdf : !canSubmitCrn}
-            className="cm-btn cm-btn-md cm-btn-primary"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-blue-600 bg-blue-600 px-4 text-sm font-medium text-white transition hover:border-blue-700 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Create Schedule
           </button>
