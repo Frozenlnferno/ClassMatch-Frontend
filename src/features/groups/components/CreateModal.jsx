@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from "react";
+import { createGroup } from "../service";
+import logger from "../../../utils/logger";
 
-export default function CreateModal({ onClose }) {
+export default function CreateModal({ onClose, onGroupCreated }) {
     const ANIMATION_MS = 200;
     const [groupName, setGroupName] = useState("");
     const [description, setDescription] = useState("");
     const [isJoinable, setIsJoinable] = useState(true);
     const [isVisible, setIsVisible] = useState(false);
+    const [error, setError] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
     const closeTimeoutRef = useRef(null);
 
     useEffect(() => {
@@ -29,10 +33,20 @@ export default function CreateModal({ onClose }) {
         }, ANIMATION_MS);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Creating group:", { groupName, description, isJoinable });
-        handleClose();
+        setError(null);
+        setSubmitting(true);
+        try {
+            await createGroup({ groupName, description, joinable: isJoinable });
+            onGroupCreated?.();
+            handleClose();
+        } catch (err) {
+            logger.error("Failed to create group:", err);
+            setError(err.message);
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -67,6 +81,12 @@ export default function CreateModal({ onClose }) {
                         >
                             Create New Group
                         </h3>
+
+                        {error && (
+                            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3">
+                                <p className="text-red-700 text-sm">{error}</p>
+                            </div>
+                        )}
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
@@ -128,9 +148,10 @@ export default function CreateModal({ onClose }) {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                    disabled={submitting}
+                                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
                                 >
-                                    Create Group
+                                    {submitting ? "Creating..." : "Create Group"}
                                 </button>
                             </div>
                         </form>

@@ -39,6 +39,23 @@ export async function loginWithEmail(email, password) {
 }
 
 /**
+ * Sign in with Google OAuth.
+ * Redirects the user to Google's OAuth consent screen.
+ * @returns {Promise<object>} OAuth response data
+ * @throws {Error} if OAuth fails
+ */
+export async function signInWithGoogle() {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+            redirectTo: `${window.location.origin}/mygroups`,
+        },
+    });
+    if (error) { throw error; }
+    return data;
+}
+
+/**
  * Log outs the current user.
  * @returns {Promise<void>}
  * @throws {Error} if logout fails.
@@ -47,4 +64,32 @@ export async function logout() {
     const { error } = await supabase.auth.signOut();
     if (error) { throw error; }
     return;
+}
+
+/**
+ * Update the current user's password.
+ * @param {string} newPassword - The new password
+ * @returns {Promise<object>} Updated user data
+ * @throws {Error} if update fails
+ */
+export async function updatePassword(newPassword) {
+    const { data, error } = await supabase.auth.updateUser({
+        password: newPassword,
+    });
+    if (error) { throw error; }
+    return data;
+}
+
+/**
+ * Send a password reset email via Supabase.
+ * @param {string} email - User email
+ * @returns {Promise<object>} Supabase response data
+ * @throws {Error} if request fails
+ */
+export async function requestPasswordReset(email) {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) { throw error; }
+    return data;
 }

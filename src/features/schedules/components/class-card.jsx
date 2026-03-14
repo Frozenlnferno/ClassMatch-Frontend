@@ -1,43 +1,39 @@
 
-import { BookOpen } from "lucide-react"
+import { BookOpen, Clock, MapPin, User } from "lucide-react"
 
-const BLOCK_TONES = [
-  "border-indigo-200 bg-indigo-50 text-indigo-700",
-  "border-blue-200 bg-blue-50 text-blue-700",
-  "border-teal-200 bg-teal-50 text-teal-700",
-  "border-amber-200 bg-amber-50 text-amber-700",
-  "border-rose-200 bg-rose-50 text-rose-700",
-]
+function formatDays(days) {
+  if (!days) return "";
+  return days;
+}
 
-function getBlockTone(category = "") {
-  let hash = 0
-  for (let i = 0; i < category.length; i += 1) {
-    hash = (hash + category.charCodeAt(i)) % BLOCK_TONES.length
-  }
-  return BLOCK_TONES[hash]
+function formatTime(start, end) {
+  if (!start || !end) return "TBA";
+  return `${start} – ${end}`;
 }
 
 export function ClassCard({ classInfo, isSelected, onToggleSelect }) {
   const handleClick = () => {
-    onToggleSelect(classInfo.id)
+    onToggleSelect(classInfo.section_id || classInfo.id)
   }
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault()
-      onToggleSelect(classInfo.id)
+      onToggleSelect(classInfo.section_id || classInfo.id)
     }
   }
+
+  const id = classInfo.section_id || classInfo.id;
 
   return (
     <div
       role="checkbox"
       aria-checked={isSelected}
-      aria-label={`${classInfo.category} ${classInfo.courseNumber} - ${classInfo.title}`}
+      aria-label={`${classInfo.subject} ${classInfo.number} - ${classInfo.title}`}
       tabIndex={0}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      className={`group relative flex cursor-pointer items-start gap-4 rounded-lg border bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-400 hover:shadow-md ${
+      className={`group relative flex cursor-pointer items-start gap-4 rounded-xl border bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-400 hover:shadow-md ${
         isSelected ? "border-blue-500 bg-blue-50 ring-2 ring-blue-100" : "border-gray-200"
       }`}
     >
@@ -45,7 +41,7 @@ export function ClassCard({ classInfo, isSelected, onToggleSelect }) {
         <input
           type="checkbox"
           checked={isSelected}
-          onChange={() => onToggleSelect(classInfo.id)}
+          onChange={() => onToggleSelect(id)}
           aria-hidden="true"
           tabIndex={-1}
           className="pointer-events-none h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
@@ -60,19 +56,44 @@ export function ClassCard({ classInfo, isSelected, onToggleSelect }) {
               {classInfo.title}
             </h3>
           </div>
-          <span className={`inline-flex shrink-0 items-center rounded-md border px-2 py-0.5 font-mono text-xs font-medium ${getBlockTone(classInfo.category)}`}>
-            {classInfo.category} {classInfo.courseNumber}
+          <span className="inline-flex shrink-0 items-center rounded-md border border-blue-200 bg-blue-50 px-2 py-0.5 font-mono text-xs font-medium text-blue-700">
+            {classInfo.subject} {classInfo.number}
           </span>
         </div>
 
-        <div className="flex items-center gap-4 text-xs text-gray-600">
-          <span>
-            Section <span className="font-medium text-gray-900">{classInfo.section}</span>
-          </span>
-          <span className="text-gray-300">|</span>
-          <span>
-            CRN <span className="font-mono font-medium text-gray-900">{classInfo.crn}</span>
-          </span>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600">
+          {classInfo.section && (
+            <span>Section <span className="font-medium text-gray-900">{classInfo.section}</span></span>
+          )}
+          <span>CRN <span className="font-mono font-medium text-gray-900">{classInfo.crn}</span></span>
+          {classInfo.course_type && (
+            <span className="rounded bg-gray-100 px-1.5 py-0.5 text-gray-600">{classInfo.course_type}</span>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1 text-xs text-gray-500 mt-1">
+          {classInfo.instructor && (
+            <div className="flex items-center gap-1.5">
+              <User className="size-3.5 shrink-0" />
+              <span>{classInfo.instructor}</span>
+            </div>
+          )}
+          {(classInfo.start_time || classInfo.days_of_week) && (
+            <div className="flex items-center gap-1.5">
+              <Clock className="size-3.5 shrink-0" />
+              <span>
+                {formatDays(classInfo.days_of_week)}
+                {classInfo.days_of_week && classInfo.start_time ? " · " : ""}
+                {formatTime(classInfo.start_time, classInfo.end_time)}
+              </span>
+            </div>
+          )}
+          {(classInfo.building || classInfo.room_number) && (
+            <div className="flex items-center gap-1.5">
+              <MapPin className="size-3.5 shrink-0" />
+              <span>{[classInfo.building, classInfo.room_number].filter(Boolean).join(" ")}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

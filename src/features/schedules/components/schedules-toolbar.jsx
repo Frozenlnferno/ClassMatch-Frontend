@@ -27,7 +27,7 @@ export function SchedulesToolbar({
         <button
           type="button"
           onClick={onDeleteSchedule}
-          className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-rose-300 bg-white px-3 text-sm font-medium text-rose-700 transition hover:bg-rose-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+          className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-rose-600 bg-rose-600 px-3 text-sm font-medium text-white transition hover:border-rose-800 hover:bg-rose-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
         >
           <Trash2 className="size-4" />
           Delete Schedule

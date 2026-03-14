@@ -10,6 +10,12 @@ export default function MenuButton({ isDesktop=true, session, onClose }) {
     "block px-4 py-2 rounded-md text-sm font-medium " +
     (isActive ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-blue-50");
 
+  const handleLogout = async () => {
+    await logout();
+    onClose?.();
+    window.location.href = "/";
+  };
+
   return (
     <>
       {isDesktop ? (
@@ -22,9 +28,15 @@ export default function MenuButton({ isDesktop=true, session, onClose }) {
             </>
           ) : (
             <>
-              <NavLink to="/schedule" className={linkClass}> Schedule </NavLink>
-              <NavLink to="/mygroups" className={linkClass}> My Groups </NavLink>
-              <NavLink to="/settings" className={linkClass}> Settings </NavLink>
+              <NavLink to="/mygroups" className={linkClass}> Groups </NavLink>
+              <NavLink to="/schedule" className={linkClass}> Schedules </NavLink>
+              <NavLink to="/settings" className={linkClass}> Profile </NavLink>
+              <button
+                onClick={handleLogout}
+                className="px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50"
+              >
+                Logout
+              </button>
             </>
           )}
         </div>
@@ -50,26 +62,32 @@ export default function MenuButton({ isDesktop=true, session, onClose }) {
           ) : (
             <>
               <NavLink
-                to="/schedule"
-                className={mobileLinkClass}
-                onClick={onClose}
-              >
-                Schedule
-              </NavLink>
-              <NavLink
                 to="/mygroups"
                 className={mobileLinkClass}
                 onClick={onClose}
               >
-                My Groups
+                Groups
+              </NavLink>
+              <NavLink
+                to="/schedule"
+                className={mobileLinkClass}
+                onClick={onClose}
+              >
+                Schedules
               </NavLink>
               <NavLink
                 to="/settings"
                 className={mobileLinkClass}
                 onClick={onClose}
               >
-                Settings
+                Profile
               </NavLink>
+              <button
+                onClick={handleLogout}
+                className="block px-4 py-2 rounded-md text-sm font-medium text-left text-red-600 hover:bg-red-50"
+              >
+                Logout
+              </button>
             </>
           )}
         </div>

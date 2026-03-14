@@ -19,15 +19,20 @@ export function GroupMemberCard({
   onPromote,
   onDemote,
   onKick,
+  onClick,
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const memberId = member.user_id || member.id
   const canManage = currentUserRole === "owner" || (currentUserRole === "admin" && member.role === "member")
   const canPromote = currentUserRole === "owner" && member.role !== "owner"
   const canDemote = currentUserRole === "owner" && member.role === "admin"
   const canKick = canManage && member.role !== "owner"
 
   return (
-    <article className="flex items-center justify-between p-3 rounded-lg border border-gray-300 hover:shadow-sm transition-all hover:border-blue-500 hover:border-l-3 hover:translate-x-1">
+    <article
+      className="flex items-center justify-between p-3 rounded-lg border border-gray-300 hover:shadow-sm transition-all hover:border-blue-500 hover:border-l-3 hover:translate-x-1 cursor-pointer"
+      onClick={() => onClick?.(memberId)}
+    >
       <div className="flex items-center gap-3">
         <div
           className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium"
@@ -50,7 +55,10 @@ export function GroupMemberCard({
       {canManage && (
         <div className="relative">
           <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={(event) => {
+              event.stopPropagation()
+              setIsMenuOpen(!isMenuOpen)
+            }}
             className="h-8 w-8 p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
             aria-label={`Manage ${member.name}`}
           >
@@ -60,8 +68,9 @@ export function GroupMemberCard({
             <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
               {canPromote && (
                 <button
-                  onClick={() => {
-                    onPromote(member.id)
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    onPromote(memberId)
                     setIsMenuOpen(false)
                   }}
                   className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors flex items-center first:rounded-t-lg"
@@ -72,8 +81,9 @@ export function GroupMemberCard({
               )}
               {canDemote && (
                 <button
-                  onClick={() => {
-                    onDemote(member.id)
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    onDemote(memberId)
                     setIsMenuOpen(false)
                   }}
                   className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors flex items-center"
@@ -84,8 +94,9 @@ export function GroupMemberCard({
               )}
               {canKick && (
                 <button
-                  onClick={() => {
-                    onKick(member.id)
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    onKick(memberId)
                     setIsMenuOpen(false)
                   }}
                   className="w-full text-left px-4 py-2 text-sm hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors flex items-center last:rounded-b-lg"

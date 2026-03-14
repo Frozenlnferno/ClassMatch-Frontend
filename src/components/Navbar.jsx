@@ -1,11 +1,18 @@
 import { useState } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import useSession from "../features/auth/useSession";
 import MenuButton from "./menuButtons";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const { session, accessToken } = useSession();
+  const { session } = useSession();
+  const initials = (session?.user?.user_metadata?.name || session?.user?.email || "CM")
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
   
   return (
     <nav className="w-full bg-white shadow-sm">
@@ -21,6 +28,16 @@ export default function Navbar() {
           {/* Desktop links */}
           <div className="hidden sm:flex items-center space-x-2">
             <MenuButton session={session} isDesktop={true} onClose={() => setOpen(false)}/>
+            {session && (
+              <Link
+                to="/settings"
+                className="ml-1 flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 hover:bg-blue-200"
+                aria-label="Open profile"
+                title="Profile"
+              >
+                {initials}
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}

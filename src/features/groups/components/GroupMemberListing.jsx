@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Users, Pencil, LogOut, Check, X } from "lucide-react"
 import { GroupMemberCard } from "./GroupMemberCard"
 
@@ -11,9 +11,14 @@ export function GroupMemberListing({
   onKick,
   onEditDescription,
   onLeaveGroup,
+  onMemberClick,
 }) {
   const [isEditing, setIsEditing] = useState(false)
-  const [editedDescription, setEditedDescription] = useState(group.description)
+  const [editedDescription, setEditedDescription] = useState(group.description || "")
+
+  useEffect(() => {
+    setEditedDescription(group.description || "")
+  }, [group.description])
 
   const sortedMembers = [...members].sort((a, b) => {
     const roleOrder = { owner: 0, admin: 1, member: 2 }
@@ -70,7 +75,7 @@ export function GroupMemberListing({
         ) : (
           <div className="group relative">
             <p className="text-slate-600 text-sm leading-relaxed pr-8">
-              {group.description}
+              {group.description || "No description provided yet."}
             </p>
             {canEdit && (
               <button
@@ -96,13 +101,14 @@ export function GroupMemberListing({
         </h2>
         <ul className="flex flex-col gap-2" role="list" aria-label="Group members">
           {sortedMembers.map((member) => (
-            <li key={member.id}>
+            <li key={member.user_id || member.id}>
               <GroupMemberCard
                 member={member}
                 currentUserRole={currentUserRole}
                 onPromote={onPromote}
                 onDemote={onDemote}
                 onKick={onKick}
+                onClick={onMemberClick}
               />
             </li>
           ))}

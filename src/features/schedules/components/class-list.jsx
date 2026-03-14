@@ -15,7 +15,7 @@ export function ClassList({
   return (
     <section aria-label="Class list">
       {/* Bulk actions bar */}
-      <div className="mb-4 flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+      <div className="mb-4 flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-5 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <input
@@ -52,10 +52,10 @@ export function ClassList({
             <button
               type="button"
               onClick={onDeleteSelected}
-              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-rose-600 bg-rose-600 px-2.5 text-xs font-medium text-white transition hover:border-rose-700 hover:bg-rose-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-rose-700 bg-rose-600 px-2.5 text-xs font-medium text-white transition hover:border-rose-800 hover:bg-rose-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
             >
               <Trash2 className="size-4" />
-              Remove {selectedClassIds.size} {selectedClassIds.size === 1 ? "class" : "classes"}
+              Delete {selectedClassIds.size} {selectedClassIds.size === 1 ? "class" : "classes"}
             </button>
           </div>
         )}
@@ -66,9 +66,9 @@ export function ClassList({
         <div className="grid gap-3">
           {classes.map((classInfo) => (
             <ClassCard
-              key={classInfo.id}
+              key={classInfo.section_id || classInfo.id}
               classInfo={classInfo}
-              isSelected={selectedClassIds.has(classInfo.id)}
+              isSelected={selectedClassIds.has(classInfo.section_id || classInfo.id)}
               onToggleSelect={onToggleSelect}
             />
           ))}

@@ -77,7 +77,7 @@ export function CreateScheduleModal({
     }
   }
 
-  const canSubmitPdf = term && year && pdfFile
+  const canSubmitPdf = Boolean(pdfFile)
   const canSubmitCrn = term && year && crns.length > 0
 
   const handleSubmit = () => {
@@ -101,44 +101,6 @@ export function CreateScheduleModal({
           <p className="text-sm text-gray-600">
             Upload a PDF export or enter CRNs to add your classes.
           </p>
-        </div>
-
-        <div className="mb-4 grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="term-select" className="text-xs font-medium text-gray-700">
-              Term
-            </label>
-            <select
-              id="term-select"
-              value={term}
-              onChange={(e) => setTerm(e.target.value)}
-              className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-            >
-              <option value="">Select term</option>
-              <option value="Spring">Spring</option>
-              <option value="Summer">Summer</option>
-              <option value="Fall">Fall</option>
-              <option value="Winter">Winter</option>
-            </select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="year-select" className="text-xs font-medium text-gray-700">
-              Year
-            </label>
-            <select
-              id="year-select"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-            >
-              <option value="">Select year</option>
-              {years.map((y) => (
-                <option key={y} value={y.toString()}>
-                  {y}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
 
         <div className="mb-4 flex rounded-md border border-gray-300 bg-gray-50 p-1">
@@ -167,6 +129,10 @@ export function CreateScheduleModal({
         <div className="min-h-0 flex-1 overflow-y-auto pr-1">
           {tab === "pdf" ? (
             <div className="flex flex-col gap-4">
+              <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+                Term and year are detected automatically from the uploaded PDF.
+              </div>
+
               <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                 <h4 className="mb-3 text-sm font-semibold text-gray-900">How to export your schedule as PDF</h4>
                 <ol className="flex flex-col gap-3 text-sm text-gray-600">
@@ -268,6 +234,43 @@ export function CreateScheduleModal({
             </div>
           ) : (
             <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="term-select" className="text-xs font-medium text-gray-700">
+                    Term
+                  </label>
+                  <select
+                    id="term-select"
+                    value={term}
+                    onChange={(e) => setTerm(e.target.value)}
+                    className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  >
+                    <option value="">Select term</option>
+                    <option value="Spring">Spring</option>
+                    <option value="Summer">Summer</option>
+                    <option value="Fall">Fall</option>
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="year-select" className="text-xs font-medium text-gray-700">
+                    Year
+                  </label>
+                  <select
+                    id="year-select"
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                    className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  >
+                    <option value="">Select year</option>
+                    {years.map((y) => (
+                      <option key={y} value={y.toString()}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="crn-input" className="text-xs font-medium text-gray-700">
                   Enter CRNs
