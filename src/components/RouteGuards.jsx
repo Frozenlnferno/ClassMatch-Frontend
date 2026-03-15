@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import useSession from "../features/auth/useSession.js";
+import useSession from "../utils/useSession.js";
 
 /**
  * ProtectedRoute: Redirects to /login if no session

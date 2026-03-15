@@ -1,4 +1,5 @@
 import { supabase } from "../../../supabase.js";
+import { API_ROUTES } from "../../config/api.js";
 
 /**
  * Get all groups the user is a member of
@@ -8,7 +9,7 @@ export async function getUserGroups() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('No active session');
 
-    const response = await fetch('http://localhost:5000/api/groups/', {
+    const response = await fetch(`${API_ROUTES.groups}/`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -35,7 +36,7 @@ export async function createGroup(groupData) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('No active session');
 
-    const response = await fetch('http://localhost:5000/api/groups/create', {
+    const response = await fetch(`${API_ROUTES.groups}/create`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -61,7 +62,7 @@ export async function joinGroup(joinCode) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('No active session');
 
-    const response = await fetch(`http://localhost:5000/api/groups/join?join_code=${encodeURIComponent(joinCode)}`, {
+    const response = await fetch(`${API_ROUTES.groups}/join?join_code=${encodeURIComponent(joinCode)}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -86,7 +87,7 @@ export async function leaveGroup(groupId) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('No active session');
 
-    const response = await fetch('http://localhost:5000/api/groups/leave', {
+    const response = await fetch(`${API_ROUTES.groups}/leave`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -112,7 +113,7 @@ export async function getGroupMembers(groupId) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('No active session');
 
-    const response = await fetch(`http://localhost:5000/api/groups/${groupId}/members`, {
+    const response = await fetch(`${API_ROUTES.groups}/${groupId}/members`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -137,7 +138,7 @@ export async function kickMember(groupId, memberId) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('No active session');
 
-    const response = await fetch(`http://localhost:5000/api/groups/${groupId}/kick`, {
+    const response = await fetch(`${API_ROUTES.groups}/${groupId}/kick`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -165,7 +166,7 @@ export async function changeMemberRole(groupId, memberId, newRole) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('No active session');
 
-    const response = await fetch(`http://localhost:5000/api/groups/${groupId}/change-role`, {
+    const response = await fetch(`${API_ROUTES.groups}/${groupId}/change-role`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -195,7 +196,7 @@ export async function updateGroupInfo(groupId, updates) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('No active session');
 
-    const response = await fetch(`http://localhost:5000/api/groups/${groupId}`, {
+    const response = await fetch(`${API_ROUTES.groups}/${groupId}`, {
         method: 'PATCH',
         headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -224,7 +225,7 @@ export async function getMatchingClassmates(groupId, year, term) {
     if (!session) throw new Error('No active session');
 
     const params = new URLSearchParams({ group_id: groupId, year, term });
-    const response = await fetch(`http://localhost:5000/api/schedules/matching-classmates?${params}`, {
+    const response = await fetch(`${API_ROUTES.schedules}/matching-classmates?${params}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -243,7 +244,7 @@ export async function joinGroupByInviteCodeURL(inviteCode) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('No active session');
 
-    const response = await fetch(`http://localhost:5000/api/groups/join/${encodeURIComponent(inviteCode)}`, {
+    const response = await fetch(`${API_ROUTES.groups}/join/${encodeURIComponent(inviteCode)}`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${session.access_token}`,

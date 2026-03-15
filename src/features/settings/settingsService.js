@@ -1,6 +1,7 @@
 import { supabase } from "../../../supabase.js";
+import { API_ROUTES } from "../../config/api.js";
 
-const API_BASE = "http://localhost:5000/api/users";
+const API_BASE = API_ROUTES.users;
 
 async function getToken() {
     const { data: { session } } = await supabase.auth.getSession();
