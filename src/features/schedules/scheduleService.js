@@ -1,12 +1,10 @@
-import { supabase } from "../../../supabase.js";
 import { API_ROUTES } from "../../config/api.js";
+import { getAccessToken } from "../../utils/authToken.js";
 
 const API_BASE = API_ROUTES.schedules;
 
 async function getToken() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error("No active session");
-    return session.access_token;
+    return getAccessToken();
 }
 
 export async function getScheduleList() {
@@ -40,6 +38,31 @@ export async function uploadSchedulePdf(file) {
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || `Upload failed: ${res.status}`);
+    }
+    return res.json();
+}
+
+/**
+ * Add schedule courses manually by CRN payload
+ * @param {string} term - term (fall, spring, summer)
+ * @param {string|number} year - schedule year
+ * @param {Array<object>} courses - course identifiers for backend resolution
+ * @returns {Promise<object>} API response payload
+ */
+export async function addScheduleCourses(term, year, courses) {
+    const token = await getToken();
+    const params = new URLSearchParams({ term, year: String(year) });
+    const res = await fetch(`${API_BASE}/courses?${params}`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ courses }),
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Add courses failed: ${res.status}`);
     }
     return res.json();
 }

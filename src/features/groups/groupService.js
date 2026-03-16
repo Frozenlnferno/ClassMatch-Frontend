@@ -1,24 +1,51 @@
-import { supabase } from "../../../supabase.js";
 import { API_ROUTES } from "../../config/api.js";
+import { getAccessToken } from "../../utils/authToken.js";
+
+async function getToken() {
+    return getAccessToken();
+}
 
 /**
  * Get all groups the user is a member of
  * @returns {Promise<Array>} List of user's groups
  */
 export async function getUserGroups() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('No active session');
+    const token = await getToken();
 
     const response = await fetch(`${API_ROUTES.groups}/`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
     });
 
     if (!response.ok) {
         throw new Error(`Failed to fetch groups: ${response.status}`);
+    }
+
+    return await response.json();
+}
+
+/**
+ * Get details for a specific group the user belongs to
+ * @param {string} groupId - Group identifier
+ * @returns {Promise<object>} Group details
+ */
+export async function getGroupDetails(groupId) {
+    const token = await getToken();
+
+    const response = await fetch(`${API_ROUTES.groups}/${encodeURIComponent(groupId)}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to fetch group details: ${response.status}`);
     }
 
     return await response.json();
@@ -33,13 +60,12 @@ export async function getUserGroups() {
  * @returns {Promise<object>} Success response
  */
 export async function createGroup(groupData) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('No active session');
+    const token = await getToken();
 
     const response = await fetch(`${API_ROUTES.groups}/create`, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(groupData),
@@ -59,13 +85,12 @@ export async function createGroup(groupData) {
  * @returns {Promise<object>} Success response
  */
 export async function joinGroup(joinCode) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('No active session');
+    const token = await getToken();
 
     const response = await fetch(`${API_ROUTES.groups}/join?join_code=${encodeURIComponent(joinCode)}`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
     });
@@ -84,13 +109,12 @@ export async function joinGroup(joinCode) {
  * @returns {Promise<object>} Success response
  */
 export async function leaveGroup(groupId) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('No active session');
+    const token = await getToken();
 
     const response = await fetch(`${API_ROUTES.groups}/leave`, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ group_id: groupId }),
@@ -110,13 +134,12 @@ export async function leaveGroup(groupId) {
  * @returns {Promise<Array>} List of group members
  */
 export async function getGroupMembers(groupId) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('No active session');
+    const token = await getToken();
 
     const response = await fetch(`${API_ROUTES.groups}/${groupId}/members`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
     });
@@ -135,13 +158,12 @@ export async function getGroupMembers(groupId) {
  * @returns {Promise<object>} Success response
  */
 export async function kickMember(groupId, memberId) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('No active session');
+    const token = await getToken();
 
     const response = await fetch(`${API_ROUTES.groups}/${groupId}/kick`, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ member_id: memberId }),
@@ -163,13 +185,12 @@ export async function kickMember(groupId, memberId) {
  * @returns {Promise<object>} Success response
  */
 export async function changeMemberRole(groupId, memberId, newRole) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('No active session');
+    const token = await getToken();
 
     const response = await fetch(`${API_ROUTES.groups}/${groupId}/change-role`, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ member_id: memberId, new_role: newRole }),
@@ -193,13 +214,12 @@ export async function changeMemberRole(groupId, memberId, newRole) {
  * @returns {Promise<object>} Success response
  */
 export async function updateGroupInfo(groupId, updates) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('No active session');
+    const token = await getToken();
 
     const response = await fetch(`${API_ROUTES.groups}/${groupId}`, {
         method: 'PATCH',
         headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(updates),
@@ -221,14 +241,13 @@ export async function updateGroupInfo(groupId, updates) {
  * @returns {Promise<Array>} List of matching classmates
  */
 export async function getMatchingClassmates(groupId, year, term) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('No active session');
+    const token = await getToken();
 
     const params = new URLSearchParams({ group_id: groupId, year, term });
     const response = await fetch(`${API_ROUTES.schedules}/matching-classmates?${params}`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
     });
@@ -240,14 +259,40 @@ export async function getMatchingClassmates(groupId, year, term) {
     return await response.json();
 }
 
+/**
+ * Get past classmates for a group and schedule
+ * @param {string} groupId - ID of the group
+ * @param {string|number} year - Year of the schedule
+ * @param {string} term - Term of the schedule
+ * @returns {Promise<Array>} List of past classmates
+ */
+export async function getPastClassmates(groupId, year, term) {
+    const token = await getToken();
+
+    const params = new URLSearchParams({ group_id: String(groupId), year: String(year), term });
+    const response = await fetch(`${API_ROUTES.schedules}/past-classmates?${params}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to fetch past classmates: ${response.status}`);
+    }
+
+    return await response.json();
+}
+
 export async function joinGroupByInviteCodeURL(inviteCode) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('No active session');
+    const token = await getToken();
 
     const response = await fetch(`${API_ROUTES.groups}/join/${encodeURIComponent(inviteCode)}`, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
     });
@@ -255,6 +300,34 @@ export async function joinGroupByInviteCodeURL(inviteCode) {
     if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || `Failed to join group: ${response.status}`);
+    }
+
+    return await response.json();
+}
+
+/**
+ * Upload a group icon (admin/owner only)
+ * @param {string} groupId - ID of the group
+ * @param {File|Blob} file - Image file to upload
+ * @returns {Promise<object>} Response containing group_icon_url
+ */
+export async function uploadGroupIcon(groupId, file) {
+    const token = await getToken();
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch(`${API_ROUTES.groups}/${encodeURIComponent(groupId)}/icon`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to upload group icon: ${response.status}`);
     }
 
     return await response.json();
