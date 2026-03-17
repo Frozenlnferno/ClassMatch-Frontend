@@ -21,7 +21,7 @@ function NavItem({ item, mobile = false }) {
           "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition",
           mobile ? "w-full justify-start" : "",
           isActive
-            ? "bg-blue-600 text-white shadow-[0_14px_32px_-18px_rgba(37,99,235,0.75)]"
+            ? "bg-blue-600 !text-white shadow-[0_14px_32px_-18px_rgba(37,99,235,0.75)]"
             : "text-slate-600 hover:bg-white hover:text-slate-900",
         ]
           .filter(Boolean)

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import useSession from "../../utils/useSession.js";
 import {
@@ -21,14 +21,8 @@ import {
   Button,
   Card,
   EmptyState,
-  Field,
-  Input,
   LoadingState,
-  Modal,
   PageHeader,
-  Select,
-  TextArea,
-  Toggle,
   buttonStyles,
 } from "../../components/ui.jsx";
 import { CopyIcon } from "../../components/icons.jsx";
@@ -37,275 +31,16 @@ import {
   canManageMember,
   copyText,
   formatCourseCode,
-  formatDate,
   formatScheduleLabel,
   formatTimeRange,
   getScheduleKey,
-  groupSchedulesByYear,
   normalizeCourse,
   parseScheduleKey,
 } from "../../utils/classMatch.js";
-
-function SchedulePicker({ schedules, selectedKey, onChange }) {
-  const groups = groupSchedulesByYear(schedules);
-
-  return (
-    <Field label="Schedule">
-      <Select value={selectedKey} onChange={(event) => onChange(event.target.value)}>
-        {groups.map((group) => (
-          <optgroup key={group.year} label={String(group.year)}>
-            {group.items.map((schedule) => (
-              <option key={getScheduleKey(schedule)} value={getScheduleKey(schedule)}>
-                {formatScheduleLabel(schedule)} - {schedule.class_count} classes
-              </option>
-            ))}
-          </optgroup>
-        ))}
-      </Select>
-    </Field>
-  );
-}
-
-function MemberProfileModal({ member, isOpen, onClose }) {
-  const [profile, setProfile] = useState(null);
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (!isOpen || !member?.user_id) return;
-
-    let isActive = true;
-
-    async function loadProfile() {
-      try {
-        setIsLoading(true);
-        setError("");
-        const response = await getPublicProfile(member.user_id);
-        if (isActive) {
-          setProfile(response);
-        }
-      } catch (loadError) {
-        if (isActive) {
-          setError(loadError instanceof Error ? loadError.message : "Unable to load member profile");
-        }
-      } finally {
-        if (isActive) {
-          setIsLoading(false);
-        }
-      }
-    }
-
-    loadProfile();
-
-    return () => {
-      isActive = false;
-    };
-  }, [isOpen, member]);
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={member?.name || "Member details"}
-      description="Profile details for this group member."
-      actions={<Button variant="ghost" onClick={onClose}>Close</Button>}
-    >
-      {isLoading ? (
-        <LoadingState title="Loading member" compact />
-      ) : error ? (
-        <Banner title="Member issue" tone="danger">
-          {error}
-        </Banner>
-      ) : (
-        <div className="space-y-5">
-          <div className="flex items-center gap-4">
-            <Avatar src={profile?.avatar_url || member?.avatar_url} name={profile?.name || member?.name} size="xl" />
-            <div>
-              <div className="text-2xl font-semibold text-slate-900">{profile?.name || member?.name}</div>
-              <div className="mt-1 text-sm text-slate-500">{member?.role}</div>
-            </div>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-[24px] bg-slate-50 p-5">
-              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Joined ClassMatch</div>
-              <div className="mt-2 text-lg font-semibold text-slate-900">{formatDate(profile?.created_at)}</div>
-            </div>
-            <div className="rounded-[24px] bg-slate-50 p-5">
-              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Joined group</div>
-              <div className="mt-2 text-lg font-semibold text-slate-900">{formatDate(member?.joined_at)}</div>
-            </div>
-          </div>
-          <div className="rounded-[28px] bg-slate-50 p-5">
-            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Bio</div>
-            <p className="mt-3 text-sm leading-7 text-slate-600">
-              {profile?.bio || "This member hasn't added a bio yet."}
-            </p>
-          </div>
-        </div>
-      )}
-    </Modal>
-  );
-}
-
-function ClassDetailsModal({ course, isOpen, onClose }) {
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size="lg"
-      title={course ? `${formatCourseCode(course)} - ${course.title}` : "Class details"}
-      description="Expanded course details and overlap with your group."
-      actions={<Button variant="ghost" onClick={onClose}>Close</Button>}
-    >
-      {course ? (
-        <div className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-[24px] bg-slate-50 p-4">
-              <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Section</div>
-              <div className="mt-2 text-base font-semibold text-slate-900">{course.section || "TBA"}</div>
-            </div>
-            <div className="rounded-[24px] bg-slate-50 p-4">
-              <div className="text-xs uppercase tracking-[0.2em] text-slate-400">CRN</div>
-              <div className="mt-2 text-base font-semibold text-slate-900">{course.crn}</div>
-            </div>
-            <div className="rounded-[24px] bg-slate-50 p-4">
-              <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Type</div>
-              <div className="mt-2 text-base font-semibold text-slate-900">{course.courseType || "Not listed"}</div>
-            </div>
-            <div className="rounded-[24px] bg-slate-50 p-4">
-              <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Meeting</div>
-              <div className="mt-2 text-base font-semibold text-slate-900">{formatTimeRange(course.startTime, course.endTime)}</div>
-              <div className="text-xs text-slate-400">{course.daysOfWeek || "Days arranged"}</div>
-            </div>
-          </div>
-
-          <div className="grid gap-6 xl:grid-cols-2">
-            <Card className="rounded-[28px] bg-slate-50/80 p-5 shadow-none">
-              <div className="text-lg font-semibold text-slate-900">Groupmates in this class now</div>
-              <div className="mt-4 space-y-3">
-                {course.currentClassmates.length ? course.currentClassmates.map((match) => (
-                  <div key={match.member_id} className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3">
-                    <Avatar src={match.avatar_url} name={match.member_name} size="sm" />
-                    <div>
-                      <div className="text-sm font-semibold text-slate-900">{match.member_name}</div>
-                      <div className="text-xs text-slate-500">{match.role || "Member"}</div>
-                    </div>
-                  </div>
-                )) : (
-                  <p className="text-sm text-slate-500">No current overlap in this class yet.</p>
-                )}
-              </div>
-            </Card>
-
-            <Card className="rounded-[28px] bg-slate-50/80 p-5 shadow-none">
-              <div className="text-lg font-semibold text-slate-900">People who took it before</div>
-              <div className="mt-4 space-y-3">
-                {course.pastClassmates.length ? course.pastClassmates.map((match) => (
-                  <div key={`${match.member_id}-${match.past_section_id}`} className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3">
-                    <Avatar src={match.member_avatar_url} name={match.member_name} size="sm" />
-                    <div>
-                      <div className="text-sm font-semibold text-slate-900">{match.member_name}</div>
-                      <div className="text-xs text-slate-500">
-                        {formatScheduleLabel({ term: match.past_term, year: match.past_year })} - Section {match.past_section || "TBA"} - CRN {match.past_crn}
-                      </div>
-                    </div>
-                  </div>
-                )) : (
-                  <p className="text-sm text-slate-500">No past overlap found for this class.</p>
-                )}
-              </div>
-            </Card>
-          </div>
-        </div>
-      ) : null}
-    </Modal>
-  );
-}
-
-function EditGroupModal({ group, isOpen, onClose, onSubmit, isSubmitting }) {
-  const [form, setForm] = useState({ name: "", description: "", joinable: true, iconFile: null });
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (!isOpen || !group) return;
-    setForm({
-      name: group.name || "",
-      description: group.description || "",
-      joinable: Boolean(group.joinable),
-      iconFile: null,
-    });
-    setError("");
-  }, [isOpen, group?.description, group?.joinable, group?.name]);
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-    if (!form.name.trim()) {
-      setError("Group name is required.");
-      return;
-    }
-
-    try {
-      setError("");
-      await onSubmit(form);
-    } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "Unable to update group");
-    }
-  }
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Edit group"
-      description="Update your group details, joinability, and icon."
-      actions={(
-        <>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button type="submit" form="edit-group-form" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : "Save group"}
-          </Button>
-        </>
-      )}
-    >
-      <form id="edit-group-form" className="space-y-5" onSubmit={handleSubmit}>
-        {error ? (
-          <Banner title="Group issue" tone="danger">
-            {error}
-          </Banner>
-        ) : null}
-
-        <Field label="Group name">
-          <Input value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} />
-        </Field>
-
-        <Field label="Group bio">
-          <TextArea
-            value={form.description}
-            onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
-          />
-        </Field>
-
-        <Field label="Joinability">
-          <Toggle
-            checked={form.joinable}
-            onChange={(joinable) => setForm((current) => ({ ...current, joinable }))}
-            onLabel="Open"
-            offLabel="Closed"
-          />
-        </Field>
-
-        <Field label="Group icon">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(event) => setForm((current) => ({ ...current, iconFile: event.target.files?.[0] || null }))}
-            className="block w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600 file:mr-4 file:rounded-xl file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
-          />
-        </Field>
-      </form>
-    </Modal>
-  );
-}
+import GroupSchedulePicker from "./components/GroupSchedulePicker.jsx";
+import MemberProfileModal from "./components/MemberProfileModal.jsx";
+import ClassDetailsModal from "./components/ClassDetailsModal.jsx";
+import EditGroupModal from "./components/EditGroupModal.jsx";
 
 export default function GroupDetailPage() {
   const navigate = useNavigate();
@@ -319,6 +54,9 @@ export default function GroupDetailPage() {
   const [pastMatches, setPastMatches] = useState([]);
   const [selectedKey, setSelectedKey] = useState("");
   const [selectedMember, setSelectedMember] = useState(null);
+  const [selectedMemberProfile, setSelectedMemberProfile] = useState(null);
+  const [selectedMemberProfileError, setSelectedMemberProfileError] = useState("");
+  const [isSelectedMemberProfileLoading, setIsSelectedMemberProfileLoading] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isLoadingWorkspace, setIsLoadingWorkspace] = useState(true);
@@ -327,66 +65,96 @@ export default function GroupDetailPage() {
   const [busyMemberId, setBusyMemberId] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const selectedKeyRef = useRef("");
 
-  const selectedSchedule = selectedKey ? parseScheduleKey(selectedKey) : null;
+  const selectedSchedule = useMemo(
+    () => (selectedKey ? parseScheduleKey(selectedKey) : null),
+    [selectedKey],
+  );
   const currentUserId = session?.user?.id;
-  const normalizedClasses = classes.map((course) => normalizeCourse(course)).map((course) => ({
-    ...course,
-    currentClassmates: currentMatches
-      .filter((match) => String(match.section_id) === String(course.sectionId))
-      .map((match) => {
-        const member = members.find((entry) => entry.user_id === match.member_id);
-        return { ...match, avatar_url: member?.avatar_url, role: member?.role };
-      }),
-    pastClassmates: pastMatches.filter((match) => String(match.section_id) === String(course.sectionId)),
-  }));
+  const normalizedClasses = useMemo(
+    () =>
+      classes.map((course) => normalizeCourse(course)).map((course) => ({
+        ...course,
+        currentClassmates: currentMatches
+          .filter((match) => String(match.section_id) === String(course.sectionId))
+          .map((match) => {
+            const member = members.find((entry) => entry.user_id === match.member_id);
+            return { ...match, avatar_url: member?.avatar_url, role: member?.role };
+          }),
+        pastClassmates: pastMatches.filter((match) => String(match.section_id) === String(course.sectionId)),
+      })),
+    [classes, currentMatches, members, pastMatches],
+  );
 
   useEffect(() => {
-    refreshWorkspace();
-  }, [groupId]);
+    selectedKeyRef.current = selectedKey;
+  }, [selectedKey]);
 
   useEffect(() => {
-    if (!selectedSchedule) {
+    if (!selectedMember?.user_id) {
+      setSelectedMemberProfile(null);
+      setSelectedMemberProfileError("");
+      setIsSelectedMemberProfileLoading(false);
+      return;
+    }
+
+    let isActive = true;
+
+    async function loadSelectedMemberProfile() {
+      try {
+        setIsSelectedMemberProfileLoading(true);
+        setSelectedMemberProfile(null);
+        setSelectedMemberProfileError("");
+        const response = await getPublicProfile(selectedMember.user_id);
+        if (isActive) {
+          setSelectedMemberProfile(response);
+        }
+      } catch (loadError) {
+        if (isActive) {
+          setSelectedMemberProfileError(loadError instanceof Error ? loadError.message : "Unable to load member profile");
+        }
+      } finally {
+        if (isActive) {
+          setIsSelectedMemberProfileLoading(false);
+        }
+      }
+    }
+
+    loadSelectedMemberProfile();
+
+    return () => {
+      isActive = false;
+    };
+  }, [selectedMember]);
+
+  const loadScheduleOverlap = useCallback(async (schedule) => {
+    if (!schedule) {
       setClasses([]);
       setCurrentMatches([]);
       setPastMatches([]);
       return;
     }
 
-    let isActive = true;
-
-    async function loadScheduleOverlap() {
-      try {
-        setIsLoadingSchedule(true);
-        setError("");
-        const [classResponse, currentResponse, pastResponse] = await Promise.all([
-          getScheduleClasses(selectedSchedule.term, selectedSchedule.year),
-          getMatchingClassmates(groupId, String(selectedSchedule.year), selectedSchedule.term),
-          getPastClassmates(groupId, String(selectedSchedule.year), selectedSchedule.term),
-        ]);
-
-        if (!isActive) return;
-        setClasses(classResponse);
-        setCurrentMatches(currentResponse);
-        setPastMatches(pastResponse);
-      } catch (loadError) {
-        if (!isActive) return;
-        setError(loadError instanceof Error ? loadError.message : "Unable to load overlap");
-      } finally {
-        if (isActive) {
-          setIsLoadingSchedule(false);
-        }
-      }
+    try {
+      setIsLoadingSchedule(true);
+      setError("");
+      const [classResponse, currentResponse, pastResponse] = await Promise.all([
+        getScheduleClasses(schedule.term, schedule.year),
+        getMatchingClassmates(groupId, String(schedule.year), schedule.term),
+        getPastClassmates(groupId, String(schedule.year), schedule.term),
+      ]);
+      setClasses(classResponse);
+      setCurrentMatches(currentResponse);
+      setPastMatches(pastResponse);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : "Unable to load overlap");
+    } finally {
+      setIsLoadingSchedule(false);
     }
+  }, [groupId]);
 
-    loadScheduleOverlap();
-
-    return () => {
-      isActive = false;
-    };
-  }, [selectedKey, groupId]);
-
-  async function refreshWorkspace(nextSelectedKey = "") {
+  const refreshWorkspace = useCallback(async (nextSelectedKey = "") => {
     try {
       setIsLoadingWorkspace(true);
       setError("");
@@ -401,20 +169,31 @@ export default function GroupDetailPage() {
       setMembers(membersResponse);
       setSchedules(schedulesResponse);
 
+      const currentSelectedKey = selectedKeyRef.current;
       const desiredKey = nextSelectedKey && schedulesResponse.some((schedule) => getScheduleKey(schedule) === nextSelectedKey)
         ? nextSelectedKey
-        : selectedKey && schedulesResponse.some((schedule) => getScheduleKey(schedule) === selectedKey)
-          ? selectedKey
+        : currentSelectedKey && schedulesResponse.some((schedule) => getScheduleKey(schedule) === currentSelectedKey)
+          ? currentSelectedKey
           : schedulesResponse[0]
             ? getScheduleKey(schedulesResponse[0])
             : "";
       setSelectedKey(desiredKey);
+      return desiredKey;
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Unable to load group");
+      return "";
     } finally {
       setIsLoadingWorkspace(false);
     }
-  }
+  }, [groupId]);
+
+  useEffect(() => {
+    refreshWorkspace();
+  }, [refreshWorkspace]);
+
+  useEffect(() => {
+    loadScheduleOverlap(selectedSchedule);
+  }, [loadScheduleOverlap, selectedSchedule]);
 
   async function handleCopyInvite() {
     if (!group?.join_code) return;
@@ -601,7 +380,7 @@ export default function GroupDetailPage() {
                       <div>
                         <div className="text-sm font-semibold text-slate-900">{member.name}</div>
                         <div className="mt-1 text-xs text-slate-500">
-                          {member.role} - Joined {formatDate(member.joined_at)}
+                          {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
                         </div>
                       </div>
                     </div>
@@ -665,7 +444,7 @@ export default function GroupDetailPage() {
           </div>
 
           {schedules.length ? (
-            <SchedulePicker schedules={schedules} selectedKey={selectedKey} onChange={setSelectedKey} />
+            <GroupSchedulePicker schedules={schedules} selectedKey={selectedKey} onChange={setSelectedKey} />
           ) : (
             <EmptyState
               title="No schedules to compare"
@@ -730,7 +509,14 @@ export default function GroupDetailPage() {
         </Card>
       </div>
 
-      <MemberProfileModal member={selectedMember} isOpen={Boolean(selectedMember)} onClose={() => setSelectedMember(null)} />
+      <MemberProfileModal
+        member={selectedMember}
+        profile={selectedMemberProfile}
+        isOpen={Boolean(selectedMember)}
+        isLoading={isSelectedMemberProfileLoading}
+        error={selectedMemberProfileError}
+        onClose={() => setSelectedMember(null)}
+      />
       <ClassDetailsModal course={selectedCourse} isOpen={Boolean(selectedCourse)} onClose={() => setSelectedCourse(null)} />
       <EditGroupModal
         group={group}

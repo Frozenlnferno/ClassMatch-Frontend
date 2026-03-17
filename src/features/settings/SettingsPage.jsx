@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../../contexts/ProfileContext.jsx";
 import { deleteUserAccount, updateUserProfile, uploadUserAvatar } from "./settingsService.js";
@@ -12,123 +12,11 @@ import {
   Field,
   Input,
   LoadingState,
-  Modal,
   PageHeader,
-  TextArea,
 } from "../../components/ui.jsx";
 import { formatDate } from "../../utils/classMatch.js";
-
-function EditProfileModal({ isOpen, onClose, profile, onSubmit, isSubmitting }) {
-  const [form, setForm] = useState({ name: "", bio: "" });
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (!isOpen) return;
-    setForm({
-      name: profile?.name || "",
-      bio: profile?.bio || "",
-    });
-    setError("");
-  }, [isOpen, profile]);
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-    if (!form.name.trim()) {
-      setError("Display name is required.");
-      return;
-    }
-
-    try {
-      setError("");
-      await onSubmit({
-        name: form.name.trim(),
-        bio: form.bio.trim(),
-      });
-    } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "Unable to update profile");
-    }
-  }
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Edit profile"
-      description="Update how classmates see your name and bio throughout ClassMatch."
-      actions={(
-        <>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button type="submit" form="edit-profile-form" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : "Save changes"}
-          </Button>
-        </>
-      )}
-    >
-      <form id="edit-profile-form" className="space-y-5" onSubmit={handleSubmit}>
-        {error ? (
-          <Banner title="Profile issue" tone="danger">
-            {error}
-          </Banner>
-        ) : null}
-
-        <Field label="Display name">
-          <Input
-            value={form.name}
-            onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-            placeholder="How classmates should know you"
-          />
-        </Field>
-
-        <Field label="Bio">
-          <TextArea
-            value={form.bio}
-            onChange={(event) => setForm((current) => ({ ...current, bio: event.target.value }))}
-            placeholder="Tell classmates a little about yourself, your focus, or what you're working on."
-          />
-        </Field>
-      </form>
-    </Modal>
-  );
-}
-
-function DeleteAccountModal({ isOpen, onClose, onConfirm, isDeleting }) {
-  const [confirmationText, setConfirmationText] = useState("");
-
-  useEffect(() => {
-    if (isOpen) {
-      setConfirmationText("");
-    }
-  }, [isOpen]);
-
-  const canDelete = confirmationText === "DELETE";
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Delete account"
-      description="This permanently deletes your ClassMatch account, schedules, and group memberships."
-      actions={(
-        <>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button variant="danger" onClick={onConfirm} disabled={!canDelete || isDeleting}>
-            {isDeleting ? "Deleting..." : "Delete account"}
-          </Button>
-        </>
-      )}
-    >
-      <div className="space-y-5">
-        <Banner title="This action cannot be undone" tone="danger">
-          Type DELETE below to confirm that you want to remove your account and all associated data.
-        </Banner>
-
-        <Field label='Type "DELETE" to confirm'>
-          <Input value={confirmationText} onChange={(event) => setConfirmationText(event.target.value)} />
-        </Field>
-      </div>
-    </Modal>
-  );
-}
+import EditProfileModal from "./components/EditProfileModal.jsx";
+import DeleteAccountModal from "./components/DeleteAccountModal.jsx";
 
 export default function SettingsPage() {
   const navigate = useNavigate();

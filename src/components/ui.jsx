@@ -10,10 +10,10 @@ function cn(...classes) {
 
 export function buttonStyles({ variant = "primary", size = "md", className = "" } = {}) {
   const variantStyles = {
-    primary: "bg-blue-600 text-white shadow-[0_18px_34px_-20px_rgba(37,99,235,0.9)] hover:bg-blue-500",
+    primary: "bg-blue-600 !text-white shadow-[0_18px_34px_-20px_rgba(37,99,235,0.9)] hover:bg-blue-500 hover:!text-white",
     secondary: "bg-white text-slate-800 border border-slate-200 shadow-sm hover:border-blue-200 hover:bg-blue-50/60",
     ghost: "bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900",
-    danger: "bg-rose-600 text-white shadow-[0_18px_34px_-20px_rgba(225,29,72,0.9)] hover:bg-rose-500",
+    danger: "bg-rose-600 !text-white shadow-[0_18px_34px_-20px_rgba(225,29,72,0.9)] hover:bg-rose-500 hover:!text-white",
   };
   const sizeStyles = {
     sm: "px-3 py-2 text-sm",
@@ -104,7 +104,7 @@ export function Badge({ children, tone = "neutral" }) {
     rose: "bg-rose-100 text-rose-700",
   };
 
-  return <span className={cn("inline-flex rounded-full px-3 py-1 text-xs font-semibold", tones[tone])}>{children}</span>;
+  return <span className={cn("inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold", tones[tone])}>{children}</span>;
 }
 
 export function PageHeader({ eyebrow, title, description, actions }) {
@@ -233,8 +233,13 @@ export function Modal({ isOpen, onClose, title, description, children, actions, 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/35 p-4 backdrop-blur-sm sm:items-center">
       <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
-      <div className={cn("relative z-10 max-h-[88vh] w-full overflow-hidden rounded-[32px] border border-white/90 bg-white shadow-[0_40px_90px_-40px_rgba(15,23,42,0.45)]", widthClass)}>
-        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
+      <div
+        className={cn(
+          "relative z-10 flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden rounded-[32px] border border-white/90 bg-white shadow-[0_40px_90px_-40px_rgba(15,23,42,0.45)]",
+          widthClass,
+        )}
+      >
+        <div className="flex flex-none items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
           <div className="space-y-1">
             <h2 className="text-xl font-semibold tracking-tight text-slate-900">{title}</h2>
             {description ? <p className="text-sm leading-6 text-slate-500">{description}</p> : null}
@@ -248,8 +253,14 @@ export function Modal({ isOpen, onClose, title, description, children, actions, 
             <CloseIcon className="size-5" />
           </button>
         </div>
-        <div className="max-h-[calc(88vh-8rem)] overflow-y-auto px-6 py-5">{children}</div>
-        {actions ? <div className="flex flex-wrap justify-end gap-3 border-t border-slate-100 px-6 py-5">{actions}</div> : null}
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+          {children}
+        </div>
+        {actions ? (
+          <div className="flex flex-none flex-wrap justify-end gap-3 border-t border-slate-100 bg-white/95 px-6 pt-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+            {actions}
+          </div>
+        ) : null}
       </div>
     </div>,
     document.body,

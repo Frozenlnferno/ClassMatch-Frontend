@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { getUserProfile } from "../features/settings/settingsService.js";
 import useSession from "../utils/useSession.js";
 
@@ -11,7 +11,7 @@ export function ProfileProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  async function refreshProfile() {
+  const refreshProfile = useCallback(async () => {
     if (!session) {
       setProfile(null);
       setError("");
@@ -32,12 +32,12 @@ export function ProfileProvider({ children }) {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [session]);
 
   useEffect(() => {
     if (isSessionLoading) return;
     refreshProfile();
-  }, [session, isSessionLoading]);
+  }, [isSessionLoading, refreshProfile]);
 
   const value = useMemo(
     () => ({
@@ -47,7 +47,7 @@ export function ProfileProvider({ children }) {
       isLoading: isSessionLoading || isLoading,
       error,
     }),
-    [profile, isSessionLoading, isLoading, error],
+    [profile, isSessionLoading, isLoading, error, refreshProfile],
   );
 
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;
