@@ -45,10 +45,14 @@ export async function loginWithEmail(email, password) {
  * @throws {Error} if OAuth fails
  */
 export async function signInWithGoogle() {
+    return signInWithGoogleTo("/mygroups");
+}
+
+export async function signInWithGoogleTo(redirectPath = "/mygroups") {
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-            redirectTo: `${window.location.origin}/mygroups`,
+            redirectTo: `${window.location.origin}${redirectPath}`,
         },
     });
     if (error) { throw error; }

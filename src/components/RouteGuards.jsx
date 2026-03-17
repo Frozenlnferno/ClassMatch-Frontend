@@ -1,19 +1,27 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import useSession from "../utils/useSession.js";
+import { LoadingState } from "./ui.jsx";
+import { resolveNextPath } from "../utils/classMatch.js";
 
 /**
  * ProtectedRoute: Redirects to /login if no session
  * @param {JSX.Element} element - Component to render
  * @returns {JSX.Element} Component or redirect
  */
-export function ProtectedRoute({ element }) {
+export function ProtectedRoute({ element, children }) {
   const { session, isSessionLoading } = useSession();
+  const location = useLocation();
 
   if (isSessionLoading) {
-    return <div>Loading...</div>; // or a spinner
+    return <LoadingState title="Checking your session" description="Getting ClassMatch ready for you." />;
   }
 
-  return session ? element : <Navigate to="/login" replace />;
+  if (!session) {
+    const next = `${location.pathname}${location.search}`;
+    return <Navigate to={`/login?next=${encodeURIComponent(next)}`} replace />;
+  }
+
+  return element || children || <Outlet />;
 }
 
 /**
@@ -22,12 +30,18 @@ export function ProtectedRoute({ element }) {
  * @param {JSX.Element} element - Component to render
  * @returns {JSX.Element} Component or redirect
  */
-export function PublicRoute({ element }) {
+export function PublicRoute({ element, children }) {
   const { session, isSessionLoading } = useSession();
+  const location = useLocation();
 
   if (isSessionLoading) {
-    return <div>Loading...</div>; // or a spinner
+    return <LoadingState title="Checking your session" description="Getting ClassMatch ready for you." />;
   }
 
-  return !session ? element : <Navigate to="/mygroups" replace />;
+  if (session) {
+    const next = new URLSearchParams(location.search).get("next");
+    return <Navigate to={resolveNextPath(next, "/mygroups")} replace />;
+  }
+
+  return element || children || <Outlet />;
 }

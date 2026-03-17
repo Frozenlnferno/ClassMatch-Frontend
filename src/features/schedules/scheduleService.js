@@ -26,20 +26,52 @@ export async function getScheduleClasses(term, year) {
     return res.json();
 }
 
-export async function uploadSchedulePdf(file) {
+export async function uploadSchedulePdf(file, options = {}) {
+    const { onProgress, onStatusChange } = options;
     const token = await getToken();
-    const formData = new FormData();
-    formData.append("pdf", file);
-    const res = await fetch(API_BASE, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
+
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        const formData = new FormData();
+        formData.append("pdf", file);
+
+        xhr.open("POST", API_BASE);
+        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+
+        xhr.upload.addEventListener("progress", (event) => {
+            if (event.lengthComputable && onProgress) {
+                onProgress((event.loaded / event.total) * 100);
+            }
+            if (onStatusChange) {
+                onStatusChange("uploading");
+            }
+        });
+
+        xhr.addEventListener("load", () => {
+            let payload = {};
+            try {
+                payload = xhr.responseText ? JSON.parse(xhr.responseText) : {};
+            } catch {
+                payload = {};
+            }
+
+            if (xhr.status >= 200 && xhr.status < 300) {
+                if (onStatusChange) {
+                    onStatusChange("parsing");
+                }
+                resolve(payload);
+                return;
+            }
+
+            reject(new Error(payload.error || `Upload failed: ${xhr.status}`));
+        });
+
+        xhr.addEventListener("error", () => {
+            reject(new Error("Upload failed. Please try again."));
+        });
+
+        xhr.send(formData);
     });
-    if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `Upload failed: ${res.status}`);
-    }
-    return res.json();
 }
 
 /**
