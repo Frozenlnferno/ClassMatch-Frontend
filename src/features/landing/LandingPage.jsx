@@ -23,8 +23,8 @@ const steps = [
 export default function LandingPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <header className="flex items-center justify-between gap-4 py-2">
-        <Link to="/" className="flex items-center gap-3">
+      <header className="motion-fade-in flex items-center justify-between gap-4 py-2">
+        <Link to="/" className="motion-soft flex items-center gap-3">
           <LogoMark className="size-11 text-blue-600" />
           <div>
             <div className="text-base font-semibold tracking-tight text-slate-900">ClassMatch</div>
@@ -44,7 +44,7 @@ export default function LandingPage() {
 
       <main className="space-y-8 py-8 sm:space-y-10 sm:py-12">
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <Card className="overflow-hidden bg-[linear-gradient(145deg,_rgba(255,255,255,0.94)_0%,_rgba(239,246,255,0.92)_100%)] p-8 sm:p-10">
+          <Card className="motion-fade-up overflow-hidden bg-[linear-gradient(145deg,_rgba(255,255,255,0.94)_0%,_rgba(239,246,255,0.92)_100%)] p-8 sm:p-10">
             <div className="max-w-2xl space-y-6">
               <Badge tone="blue">Built for UIUC students</Badge>
               <div className="space-y-4">
@@ -70,7 +70,7 @@ export default function LandingPage() {
             </div>
           </Card>
 
-          <Card className="relative overflow-hidden p-0">
+          <Card className="motion-fade-up motion-delay-1 relative overflow-hidden p-0">
             <div className="absolute inset-x-6 top-6 h-32 rounded-[28px] bg-[radial-gradient(circle_at_top_left,_rgba(96,165,250,0.24),_transparent_58%)]" />
             <div className="relative space-y-4 p-6 sm:p-8">
               <div className="rounded-[28px] border border-blue-100 bg-blue-50/80 p-5">
@@ -97,7 +97,7 @@ export default function LandingPage() {
           </Card>
         </section>
 
-        <section className="rounded-[32px] border border-white/80 bg-white/90 px-6 py-8 shadow-[0_22px_60px_-34px_rgba(15,23,42,0.18)] sm:px-8 sm:py-10">
+        <section className="motion-fade-up motion-delay-2 rounded-[32px] border border-white/80 bg-white/90 px-6 py-8 shadow-[0_22px_60px_-34px_rgba(15,23,42,0.18)] sm:px-8 sm:py-10">
           <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-600">How it works</div>
@@ -113,7 +113,7 @@ export default function LandingPage() {
               const Icon = step.icon;
 
               return (
-                <Card key={step.title} className="h-full rounded-[28px] bg-slate-50/70 p-6 shadow-none">
+                <Card key={step.title} className="motion-lift h-full rounded-[28px] bg-slate-50/70 p-6 shadow-none">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex size-11 items-center justify-center rounded-2xl bg-blue-600 text-white">
@@ -135,7 +135,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-white/80 py-6 text-sm text-slate-500">
+      <footer className="motion-fade-in border-t border-white/80 py-6 text-sm text-slate-500">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>ClassMatch keeps UIUC students aligned around shared classes and groups.</div>
           <div className="flex items-center gap-5">

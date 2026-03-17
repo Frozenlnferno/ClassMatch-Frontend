@@ -52,7 +52,7 @@ export default function LoginPage() {
   return (
     <div className="mx-auto flex min-h-screen max-w-6xl items-center px-4 py-10 sm:px-6 lg:px-8">
       <div className="grid w-full gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <Card className="hidden bg-[linear-gradient(180deg,_rgba(239,246,255,0.92)_0%,_rgba(255,255,255,0.9)_100%)] p-10 lg:block">
+        <Card className="motion-fade-up hidden bg-[linear-gradient(180deg,_rgba(239,246,255,0.92)_0%,_rgba(255,255,255,0.9)_100%)] p-10 lg:block">
           <div className="space-y-8">
             <Link to="/" className="inline-flex items-center gap-3">
               <LogoMark className="size-11 text-blue-600" />
@@ -74,7 +74,7 @@ export default function LoginPage() {
           </div>
         </Card>
 
-        <Card className="p-8 sm:p-10">
+        <Card className="motion-fade-up motion-delay-1 p-8 sm:p-10">
           <div className="space-y-6">
             <div className="space-y-2">
               <div className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-600">Log in</div>

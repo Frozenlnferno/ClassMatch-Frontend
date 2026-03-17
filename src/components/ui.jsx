@@ -22,7 +22,7 @@ export function buttonStyles({ variant = "primary", size = "md", className = "" 
   };
 
   return cn(
-    "inline-flex items-center justify-center gap-2 rounded-2xl font-medium transition duration-150 disabled:cursor-not-allowed disabled:opacity-60",
+    "motion-lift inline-flex items-center justify-center gap-2 rounded-2xl font-medium transition-[transform,background-color,border-color,color,box-shadow,opacity] duration-200 ease-out active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60",
     variantStyles[variant],
     sizeStyles[size],
     className,
@@ -37,7 +37,7 @@ export function Card({ className, children, ...props }) {
   return (
     <div
       className={cn(
-        "rounded-[28px] border border-white/80 bg-white/90 p-6 shadow-[0_22px_60px_-30px_rgba(15,23,42,0.18)] backdrop-blur",
+        "motion-soft rounded-[28px] border border-white/80 bg-white/90 p-6 shadow-[0_22px_60px_-30px_rgba(15,23,42,0.18)] backdrop-blur",
         className,
       )}
       {...props}
@@ -61,7 +61,7 @@ export function Field({ label, hint, error, children, className = "" }) {
 }
 
 const fieldBaseClass =
-  "w-full rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-900 shadow-inner shadow-white transition outline-none placeholder:text-slate-400 focus:border-blue-300 focus:bg-white focus:ring-4 focus:ring-blue-100";
+  "motion-soft w-full rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-900 shadow-inner shadow-white transition-[background-color,border-color,box-shadow,color,transform] duration-200 outline-none placeholder:text-slate-400 focus:border-blue-300 focus:bg-white focus:ring-4 focus:ring-blue-100";
 
 export function Input({ className, ...props }) {
   return <input className={cn(fieldBaseClass, className)} {...props} />;
@@ -88,7 +88,7 @@ export function Banner({ title, children, tone = "info" }) {
   };
 
   return (
-    <div className={cn("rounded-2xl border px-4 py-3", tones[tone])}>
+    <div className={cn("motion-fade-in rounded-2xl border px-4 py-3", tones[tone])}>
       {title ? <div className="text-sm font-semibold">{title}</div> : null}
       {children ? <div className="mt-1 text-sm">{children}</div> : null}
     </div>
@@ -104,12 +104,12 @@ export function Badge({ children, tone = "neutral" }) {
     rose: "bg-rose-100 text-rose-700",
   };
 
-  return <span className={cn("inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold", tones[tone])}>{children}</span>;
+  return <span className={cn("motion-soft inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold", tones[tone])}>{children}</span>;
 }
 
 export function PageHeader({ eyebrow, title, description, actions }) {
   return (
-    <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div className="motion-fade-up mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div className="space-y-2">
         {eyebrow ? <div className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-600">{eyebrow}</div> : null}
         <div className="space-y-1">
@@ -124,7 +124,7 @@ export function PageHeader({ eyebrow, title, description, actions }) {
 
 export function EmptyState({ title, description, action, className = "" }) {
   return (
-    <Card className={cn("border-dashed border-slate-200 text-center", className)}>
+    <Card className={cn("motion-fade-up border-dashed border-slate-200 text-center", className)}>
       <div className="mx-auto max-w-md space-y-3">
         <div className="text-lg font-semibold text-slate-900">{title}</div>
         <p className="text-sm leading-6 text-slate-600">{description}</p>
@@ -156,11 +156,11 @@ export function Avatar({ src, name, size = "md", className = "" }) {
   };
 
   if (src) {
-    return <img src={src} alt={name} className={cn("rounded-2xl object-cover", sizes[size], className)} />;
+    return <img src={src} alt={name} className={cn("motion-soft rounded-2xl object-cover", sizes[size], className)} />;
   }
 
   return (
-    <div className={cn("flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-sky-400 font-semibold text-white", sizes[size], className)}>
+    <div className={cn("motion-soft flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-sky-400 font-semibold text-white", sizes[size], className)}>
       {getInitials(name)}
     </div>
   );
@@ -180,7 +180,7 @@ export function ProgressBar({ value = 0, label }) {
     <div className="space-y-2">
       {label ? <div className="flex items-center justify-between text-xs font-medium text-slate-500"><span>{label}</span><span>{Math.round(value)}%</span></div> : null}
       <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-        <div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: `${value}%` }} />
+        <div className="motion-soft h-full rounded-full bg-blue-600 transition-[width,transform,background-color] duration-300" style={{ width: `${value}%` }} />
       </div>
     </div>
   );
@@ -192,17 +192,17 @@ export function Toggle({ checked, onChange, onLabel = "Open", offLabel = "Closed
       type="button"
       onClick={() => onChange(!checked)}
       className={cn(
-        "inline-flex items-center gap-3 rounded-full border px-2 py-2 text-sm font-medium transition",
+        "motion-soft inline-flex items-center gap-3 rounded-full border px-2 py-2 text-sm font-medium",
         checked ? "border-blue-200 bg-blue-50 text-blue-700" : "border-slate-200 bg-slate-50 text-slate-600",
       )}
     >
       <span
         className={cn(
-          "flex h-7 w-12 items-center rounded-full px-1 transition",
+          "motion-soft flex h-7 w-12 items-center rounded-full px-1",
           checked ? "bg-blue-600 justify-end" : "bg-slate-300 justify-start",
         )}
       >
-        <span className="size-5 rounded-full bg-white shadow-sm" />
+        <span className="motion-soft size-5 rounded-full bg-white shadow-sm" />
       </span>
       <span>{checked ? onLabel : offLabel}</span>
     </button>
@@ -231,11 +231,11 @@ export function Modal({ isOpen, onClose, title, description, children, actions, 
   const widthClass = size === "lg" ? "max-w-4xl" : size === "sm" ? "max-w-lg" : "max-w-2xl";
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/35 p-4 backdrop-blur-sm sm:items-center">
+    <div className="motion-fade-in fixed inset-0 z-50 flex items-end justify-center bg-slate-950/35 p-4 backdrop-blur-sm sm:items-center">
       <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
       <div
         className={cn(
-          "relative z-10 flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden rounded-[32px] border border-white/90 bg-white shadow-[0_40px_90px_-40px_rgba(15,23,42,0.45)]",
+          "motion-scale-in relative z-10 flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden rounded-[32px] border border-white/90 bg-white shadow-[0_40px_90px_-40px_rgba(15,23,42,0.45)]",
           widthClass,
         )}
       >
@@ -247,7 +247,7 @@ export function Modal({ isOpen, onClose, title, description, children, actions, 
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex size-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
+            className="motion-lift inline-flex size-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-500 transition-[transform,background-color,color,box-shadow] duration-200 hover:bg-slate-200 hover:text-slate-700"
             aria-label="Close"
           >
             <CloseIcon className="size-5" />

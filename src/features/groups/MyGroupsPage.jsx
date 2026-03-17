@@ -86,7 +86,7 @@ export default function MyGroupsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="motion-fade-up space-y-6">
       <PageHeader
         eyebrow="Groups"
         title="Your ClassMatch groups"
@@ -111,7 +111,7 @@ export default function MyGroupsPage() {
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <Card className="space-y-5">
+        <Card className="motion-fade-up motion-delay-1 space-y-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="text-sm font-semibold text-slate-900">All groups</div>
@@ -129,7 +129,7 @@ export default function MyGroupsPage() {
           ) : groups.length ? (
             <div className="grid gap-4 md:grid-cols-2">
               {groups.map((group) => (
-                <Card key={group.id} className="rounded-[28px] p-5 shadow-none ring-1 ring-slate-100">
+                <Card key={group.id} className="motion-lift rounded-[28px] p-5 shadow-none ring-1 ring-slate-100">
                   <div className="flex h-full flex-col justify-between gap-5">
                     <div className="space-y-4">
                       <div className="flex items-start justify-between gap-4">
@@ -152,14 +152,14 @@ export default function MyGroupsPage() {
                         <button
                           type="button"
                           onClick={() => handleCopyInvite(group)}
-                          className="inline-flex items-center gap-2 rounded-2xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200"
+                          className="motion-lift inline-flex items-center gap-2 rounded-2xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition-[transform,background-color,box-shadow] duration-200 hover:bg-slate-200"
                         >
                           <CopyIcon className="size-4" />
                           Copy invite link
                         </button>
                       </div>
 
-                      <Link to={`/groups/${group.id}`} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700">
+                      <Link to={`/groups/${group.id}`} className="motion-soft inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700">
                         Open group
                         <ArrowRightIcon className="size-4" />
                       </Link>
@@ -182,7 +182,7 @@ export default function MyGroupsPage() {
           )}
         </Card>
 
-        <Card className="space-y-5">
+        <Card className="motion-fade-up motion-delay-2 space-y-5">
           <div className="rounded-[28px] bg-blue-50/70 p-5">
             <div className="flex items-center gap-3">
               <div className="flex size-11 items-center justify-center rounded-2xl bg-blue-600 text-white">

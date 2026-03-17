@@ -196,7 +196,7 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="motion-fade-up space-y-6">
       <PageHeader
         eyebrow="Schedules"
         title="Manage your schedules"
@@ -226,7 +226,7 @@ export default function SchedulePage() {
         </Banner>
       ) : null}
 
-      <Card className="space-y-5">
+      <Card className="motion-fade-up motion-delay-1 space-y-5">
         {isLoadingSchedules ? (
           <LoadingState title="Loading schedules" description="Bringing in every term you've added so far." />
         ) : schedules.length ? (

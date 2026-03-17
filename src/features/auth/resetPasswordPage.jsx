@@ -56,7 +56,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-3xl items-center px-4 py-10 sm:px-6 lg:px-8">
-      <Card className="w-full p-8 sm:p-10">
+      <Card className="motion-fade-up w-full p-8 sm:p-10">
         <div className="space-y-6">
           <Link to="/" className="inline-flex items-center gap-3">
             <LogoMark className="size-10 text-blue-600" />

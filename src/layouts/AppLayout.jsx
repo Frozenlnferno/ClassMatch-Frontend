@@ -18,7 +18,7 @@ function NavItem({ item, mobile = false }) {
       to={item.to}
       className={({ isActive }) =>
         [
-          "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition",
+          "motion-soft inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[transform,background-color,color,box-shadow] duration-200",
           mobile ? "w-full justify-start" : "",
           isActive
             ? "bg-blue-600 !text-white shadow-[0_14px_32px_-18px_rgba(37,99,235,0.75)]"
@@ -79,7 +79,7 @@ export default function AppLayout() {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen((open) => !open)}
-              className="inline-flex size-11 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 md:hidden"
+              className="motion-lift inline-flex size-11 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 transition-[transform,background-color,border-color,color,box-shadow] duration-200 md:hidden"
               aria-label={isMobileMenuOpen ? "Close navigation" : "Open navigation"}
             >
               {isMobileMenuOpen ? <CloseIcon className="size-5" /> : <MenuIcon className="size-5" />}
@@ -89,7 +89,7 @@ export default function AppLayout() {
               <button
                 type="button"
                 onClick={() => setIsProfileMenuOpen((open) => !open)}
-                className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-2 py-1.5 shadow-sm transition hover:border-blue-200 hover:shadow-md"
+                className="motion-lift flex items-center gap-3 rounded-full border border-slate-200 bg-white px-2 py-1.5 shadow-sm transition-[transform,border-color,box-shadow,background-color] duration-200 hover:border-blue-200 hover:shadow-md"
               >
                 <Avatar
                   src={profile?.avatar_url}
@@ -105,7 +105,7 @@ export default function AppLayout() {
               </button>
 
               {isProfileMenuOpen ? (
-                <div className="absolute right-0 top-[calc(100%+0.75rem)] w-64 rounded-3xl border border-slate-200 bg-white p-3 shadow-[0_22px_50px_-24px_rgba(15,23,42,0.4)]">
+                <div className="motion-scale-in absolute right-0 top-[calc(100%+0.75rem)] w-64 rounded-3xl border border-slate-200 bg-white p-3 shadow-[0_22px_50px_-24px_rgba(15,23,42,0.4)]">
                   {isLoading ? (
                     <LoadingState title="Loading profile" compact />
                   ) : (
@@ -149,7 +149,7 @@ export default function AppLayout() {
         </div>
 
         {isMobileMenuOpen ? (
-          <div className="border-t border-slate-200 bg-white/95 px-4 py-4 md:hidden">
+          <div className="motion-fade-in border-t border-slate-200 bg-white/95 px-4 py-4 md:hidden">
             <div className="space-y-2">
               {navItems.map((item) => (
                 <NavItem key={item.to} item={item} mobile />

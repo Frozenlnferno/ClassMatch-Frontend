@@ -289,7 +289,7 @@ export default function GroupDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="motion-fade-up space-y-6">
       <PageHeader
         eyebrow="Group details"
         title={group.name}
@@ -319,7 +319,7 @@ export default function GroupDetailPage() {
         </Banner>
       ) : null}
 
-      <Card className="space-y-5">
+      <Card className="motion-fade-up motion-delay-1 space-y-5">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-4">
             <Avatar src={group.group_icon_url} name={group.name} size="xl" />
@@ -347,7 +347,7 @@ export default function GroupDetailPage() {
       </Card>
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-        <Card className="space-y-5">
+        <Card className="motion-fade-up motion-delay-1 space-y-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="text-lg font-semibold text-slate-900">Members</div>
@@ -372,7 +372,7 @@ export default function GroupDetailPage() {
                   key={member.user_id}
                   type="button"
                   onClick={() => setSelectedMember(member)}
-                  className="w-full rounded-[28px] border border-slate-200 bg-slate-50/70 p-4 text-left transition hover:border-blue-200 hover:bg-blue-50/40"
+                  className="motion-lift w-full rounded-[28px] border border-slate-200 bg-slate-50/70 p-4 text-left transition-[transform,border-color,background-color,box-shadow] duration-200 hover:border-blue-200 hover:bg-blue-50/40"
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
@@ -393,7 +393,7 @@ export default function GroupDetailPage() {
                             handleRoleChange(member, "admin");
                           }}
                           disabled={busyMemberId === member.user_id}
-                          className="rounded-2xl bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-200 disabled:opacity-60"
+                          className="motion-lift rounded-2xl bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700 transition-[transform,background-color,box-shadow] duration-200 hover:bg-blue-200 disabled:opacity-60"
                         >
                           Promote
                         </button>
@@ -406,7 +406,7 @@ export default function GroupDetailPage() {
                             handleRoleChange(member, "member");
                           }}
                           disabled={busyMemberId === member.user_id}
-                          className="rounded-2xl bg-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-300 disabled:opacity-60"
+                          className="motion-lift rounded-2xl bg-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition-[transform,background-color,box-shadow] duration-200 hover:bg-slate-300 disabled:opacity-60"
                         >
                           Demote
                         </button>
@@ -419,7 +419,7 @@ export default function GroupDetailPage() {
                             handleKick(member);
                           }}
                           disabled={busyMemberId === member.user_id}
-                          className="rounded-2xl bg-rose-100 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-200 disabled:opacity-60"
+                          className="motion-lift rounded-2xl bg-rose-100 px-3 py-2 text-xs font-semibold text-rose-700 transition-[transform,background-color,box-shadow] duration-200 hover:bg-rose-200 disabled:opacity-60"
                         >
                           Kick
                         </button>
@@ -432,7 +432,7 @@ export default function GroupDetailPage() {
           </div>
         </Card>
 
-        <Card className="space-y-5">
+        <Card className="motion-fade-up motion-delay-2 space-y-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="text-lg font-semibold text-slate-900">Schedule overlap</div>
@@ -464,7 +464,7 @@ export default function GroupDetailPage() {
                     key={`${course.sectionId}-${course.crn}`}
                     type="button"
                     onClick={() => setSelectedCourse(course)}
-                    className="w-full rounded-[28px] border border-slate-200 bg-white p-5 text-left transition hover:border-blue-200 hover:bg-blue-50/30"
+                    className="motion-lift w-full rounded-[28px] border border-slate-200 bg-white p-5 text-left transition-[transform,border-color,background-color,box-shadow] duration-200 hover:border-blue-200 hover:bg-blue-50/30"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>

@@ -45,7 +45,7 @@ export default function InvitePage() {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-4xl items-center px-4 py-10 sm:px-6 lg:px-8">
-      <Card className="w-full overflow-hidden p-0">
+      <Card className="motion-fade-up w-full overflow-hidden p-0">
         <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="space-y-6 bg-[linear-gradient(180deg,_rgba(239,246,255,0.9)_0%,_rgba(255,255,255,0.86)_100%)] p-8 sm:p-10">
             <Link to="/" className="inline-flex items-center gap-3">

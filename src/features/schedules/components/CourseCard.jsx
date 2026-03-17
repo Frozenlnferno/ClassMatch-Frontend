@@ -7,7 +7,7 @@ export default function CourseCard({ course, isSelected, onToggle }) {
       type="button"
       onClick={() => onToggle(course)}
       className={[
-        "w-full rounded-[28px] border p-5 text-left transition",
+        "motion-lift w-full rounded-[28px] border p-5 text-left transition-[transform,border-color,background-color,box-shadow] duration-200",
         isSelected
           ? "border-blue-300 bg-blue-50/80 shadow-[0_20px_45px_-32px_rgba(37,99,235,0.6)]"
           : "border-slate-200 bg-white hover:border-blue-200 hover:bg-blue-50/40",

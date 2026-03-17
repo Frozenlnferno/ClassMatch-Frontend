@@ -146,7 +146,7 @@ export default function CreateScheduleModal({
               type="button"
               onClick={() => setMethod("pdf")}
               className={[
-                "rounded-[24px] border p-5 text-left transition",
+                "motion-lift rounded-[24px] border p-5 text-left transition-[transform,border-color,background-color,box-shadow] duration-200",
                 method === "pdf" ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-slate-50 hover:border-blue-200",
               ].join(" ")}
             >
@@ -160,7 +160,7 @@ export default function CreateScheduleModal({
               type="button"
               onClick={() => setMethod("crn")}
               className={[
-                "rounded-[24px] border p-5 text-left transition",
+                "motion-lift rounded-[24px] border p-5 text-left transition-[transform,border-color,background-color,box-shadow] duration-200",
                 method === "crn" ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-slate-50 hover:border-blue-200",
               ].join(" ")}
             >

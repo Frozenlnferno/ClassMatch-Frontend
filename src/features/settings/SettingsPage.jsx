@@ -102,7 +102,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="motion-fade-up space-y-6">
       <PageHeader
         eyebrow="Profile"
         title="Profile & settings"
@@ -125,7 +125,7 @@ export default function SettingsPage() {
         <LoadingState title="Loading profile" description="Pulling in your account information." />
       ) : (
         <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-          <Card className="space-y-6">
+          <Card className="motion-fade-up motion-delay-1 space-y-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
               <Avatar src={profile?.avatar_url} name={profile?.name} size="xl" />
               <div className="space-y-3">
@@ -163,7 +163,7 @@ export default function SettingsPage() {
           </Card>
 
           <div className="space-y-6">
-            <Card className="space-y-5">
+            <Card className="motion-fade-up motion-delay-1 space-y-5">
               <div>
                 <div className="text-lg font-semibold text-slate-900">Change password</div>
                 <div className="mt-1 text-sm text-slate-500">Choose a new password for your account.</div>
@@ -194,7 +194,7 @@ export default function SettingsPage() {
               </form>
             </Card>
 
-            <Card className="space-y-4 border-rose-100">
+            <Card className="motion-fade-up motion-delay-2 space-y-4 border-rose-100">
               <div>
                 <div className="text-lg font-semibold text-slate-900">Delete account</div>
                 <div className="mt-1 text-sm text-slate-500">
