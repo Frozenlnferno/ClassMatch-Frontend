@@ -28,7 +28,7 @@ export default function LandingPage() {
           <LogoMark className="size-11 text-blue-600" />
           <div>
             <div className="text-base font-semibold tracking-tight text-slate-900">ClassMatch</div>
-            <div className="text-xs text-slate-500">Find classmates in shared courses</div>
+            <div className="text-xs text-slate-500">UIUC students finding classmates in shared courses</div>
           </div>
         </Link>
 
@@ -46,13 +46,16 @@ export default function LandingPage() {
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <Card className="overflow-hidden bg-[linear-gradient(145deg,_rgba(255,255,255,0.94)_0%,_rgba(239,246,255,0.92)_100%)] p-8 sm:p-10">
             <div className="max-w-2xl space-y-6">
-              <Badge tone="blue">Built for busy university schedules</Badge>
+              <Badge tone="blue">Built for UIUC students</Badge>
               <div className="space-y-4">
                 <h1 className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
-                  ClassMatch helps students find classmates in the courses they already share.
+                  ClassMatch helps UIUC students find classmates in the courses they already share.
                 </h1>
                 <p className="max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
-                  Upload your schedule, join a group, and instantly see which classmates overlap with your classes now or have taken them before.
+                  Upload your UIUC schedule, join a group, and instantly see which classmates overlap with your classes now or have taken them before.
+                </p>
+                <p className="max-w-xl text-sm leading-6 text-slate-500">
+                  Currently tailored for University of Illinois Urbana-Champaign course schedules and student workflows.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
@@ -72,7 +75,7 @@ export default function LandingPage() {
             <div className="relative space-y-4 p-6 sm:p-8">
               <div className="rounded-[28px] border border-blue-100 bg-blue-50/80 p-5">
                 <div className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-600">At a glance</div>
-                <div className="mt-3 text-2xl font-semibold text-slate-900">Schedules, groups, and profiles in one calm workspace.</div>
+                <div className="mt-3 text-2xl font-semibold text-slate-900">A ClassMatch workspace built around UIUC schedules, groups, and student profiles.</div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-[24px] bg-slate-50 p-5">
@@ -101,7 +104,7 @@ export default function LandingPage() {
               <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">Three simple steps to get connected</h2>
             </div>
             <p className="max-w-xl text-sm leading-6 text-slate-500">
-              Start with your schedule, then let ClassMatch surface the classmates and groups that matter.
+              Start with your UIUC schedule, then let ClassMatch surface the classmates and groups that matter.
             </p>
           </div>
 
@@ -134,7 +137,7 @@ export default function LandingPage() {
 
       <footer className="border-t border-white/80 py-6 text-sm text-slate-500">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>ClassMatch keeps students aligned around shared classes and groups.</div>
+          <div>ClassMatch keeps UIUC students aligned around shared classes and groups.</div>
           <div className="flex items-center gap-5">
             <span>About</span>
             <span>Privacy</span>

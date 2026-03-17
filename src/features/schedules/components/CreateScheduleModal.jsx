@@ -182,9 +182,16 @@ export default function CreateScheduleModal({
           <div className="space-y-5">
             <Card className="rounded-[28px] bg-slate-50/80 p-5 shadow-none">
               <div className="space-y-2">
-                <div className="text-sm font-semibold text-slate-900">Export tips</div>
+                <div className="text-sm font-semibold text-slate-900">How to get your schedule PDF</div>
+                <ol className="list-decimal space-y-2 pl-5 text-sm leading-6 text-slate-600">
+                  <li>Login to your UIUC Self Service account.</li>
+                  <li>Go to Class Registration under Student Services.</li>
+                  <li>Click View Class Schedules.</li>
+                  <li>Select the term you want.</li>
+                  <li>Download the PDF by clicking the printer icon and save as PDF.</li>
+                </ol>
                 <p className="text-sm leading-6 text-slate-600">
-                  Export the schedule page from your registration portal as a PDF with selectable text. ClassMatch will parse the term and course identifiers from the document.
+                  <span className="font-semibold text-slate-700">NOTE:</span> Different browsers download PDFs differently. Try using Chrome for best results if your browser&apos;s downloaded PDF does not work.
                 </p>
               </div>
             </Card>
