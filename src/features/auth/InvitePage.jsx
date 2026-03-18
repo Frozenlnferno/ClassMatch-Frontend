@@ -2,16 +2,17 @@ import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import useSession from "../../utils/useSession.js";
 import { joinGroupByInviteCodeURL } from "../groups/groupService.js";
-import { Banner, Button, Card, PageHeader, buttonStyles } from "../../components/ui.jsx";
+import { Button, Card, PageHeader, buttonStyles } from "../../components/ui.jsx";
 import { ArrowRightIcon, CopyIcon, LogoMark, UsersIcon } from "../../components/icons.jsx";
 import { buildInviteLink, copyText, withNextPath } from "../../utils/classMatch.js";
+import { useNotifications } from "../../contexts/NotificationsContext.jsx";
 
 export default function InvitePage() {
   const { inviteCode = "" } = useParams();
   const navigate = useNavigate();
   const { session, isSessionLoading } = useSession();
+  const { notifyError } = useNotifications();
   const [isJoining, setIsJoining] = useState(false);
-  const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
   const inviteLink = useMemo(() => buildInviteLink(inviteCode), [inviteCode]);
@@ -22,14 +23,13 @@ export default function InvitePage() {
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch (copyError) {
-      setError(copyError instanceof Error ? copyError.message : "Couldn't copy invite link");
+      notifyError("Invite issue", copyError instanceof Error ? copyError.message : "Couldn't copy invite link");
     }
   }
 
   async function handleJoin() {
     try {
       setIsJoining(true);
-      setError("");
       const response = await joinGroupByInviteCodeURL(inviteCode);
       if (response.group_id) {
         navigate(`/groups/${response.group_id}`, { replace: true });
@@ -37,7 +37,7 @@ export default function InvitePage() {
       }
       navigate("/mygroups", { replace: true });
     } catch (joinError) {
-      setError(joinError instanceof Error ? joinError.message : "Unable to join this group right now");
+      notifyError("Invite issue", joinError instanceof Error ? joinError.message : "Unable to join this group right now");
     } finally {
       setIsJoining(false);
     }
@@ -85,14 +85,6 @@ export default function InvitePage() {
           </div>
 
           <div className="flex flex-col justify-center p-8 sm:p-10">
-            {error ? (
-              <div className="mb-4">
-                <Banner title="Invite issue" tone="danger">
-                  {error}
-                </Banner>
-              </div>
-            ) : null}
-
             {isSessionLoading ? (
               <div className="space-y-3">
                 <div className="h-4 w-28 rounded-full bg-slate-100" />

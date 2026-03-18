@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createGroup, getUserGroups, joinGroup } from "./groupService.js";
 import {
   Avatar,
   Badge,
-  Banner,
   Button,
   Card,
   EmptyState,
@@ -15,12 +14,16 @@ import {
 import { ArrowRightIcon, CopyIcon, PlusIcon, UsersIcon } from "../../components/icons.jsx";
 import { buildInviteLink, copyText } from "../../utils/classMatch.js";
 import CreateGroupModal from "./components/CreateGroupModal.jsx";
+import { useNotifications } from "../../contexts/NotificationsContext.jsx";
 
 export default function MyGroupsPage() {
+  const navigate = useNavigate();
+  const { notifyError, notifySuccess } = useNotifications();
   const [groups, setGroups] = useState([]);
   const [joinCode, setJoinCode] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [copiedGroupId, setCopiedGroupId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isJoining, setIsJoining] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -29,6 +32,18 @@ export default function MyGroupsPage() {
   useEffect(() => {
     refreshGroups();
   }, []);
+
+  useEffect(() => {
+    if (error) {
+      notifyError("Group issue", error);
+    }
+  }, [error, notifyError]);
+
+  useEffect(() => {
+    if (success) {
+      notifySuccess("Success", success);
+    }
+  }, [notifySuccess, success]);
 
   async function refreshGroups() {
     try {
@@ -78,11 +93,19 @@ export default function MyGroupsPage() {
   async function handleCopyInvite(group) {
     try {
       await copyText(buildInviteLink(group.join_code));
+      setCopiedGroupId(group.id);
+      window.setTimeout(() => {
+        setCopiedGroupId((current) => (current === group.id ? "" : current));
+      }, 1800);
       setSuccess(`Invite link copied for ${group.name}.`);
       setError("");
     } catch (copyError) {
       setError(copyError instanceof Error ? copyError.message : "Unable to copy invite link");
     }
+  }
+
+  function openGroup(groupId) {
+    navigate(`/groups/${groupId}`);
   }
 
   return (
@@ -98,17 +121,6 @@ export default function MyGroupsPage() {
           </Button>
         )}
       />
-
-      {error ? (
-        <Banner title="Group issue" tone="danger">
-          {error}
-        </Banner>
-      ) : null}
-      {success ? (
-        <Banner title="Success" tone="success">
-          {success}
-        </Banner>
-      ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <Card className="motion-fade-up motion-delay-1 space-y-5">
@@ -126,10 +138,28 @@ export default function MyGroupsPage() {
                 <div key={index} className="h-48 rounded-[28px] bg-slate-100" />
               ))}
             </div>
+          ) : error && !groups.length ? (
+            <EmptyState
+              title="Couldn't load groups"
+              description={error}
+              action={<Button onClick={refreshGroups}>Try again</Button>}
+            />
           ) : groups.length ? (
             <div className="grid gap-4 md:grid-cols-2">
               {groups.map((group) => (
-                <Card key={group.id} className="motion-lift rounded-[28px] p-5 shadow-none ring-1 ring-slate-100">
+                <Card
+                  key={group.id}
+                  className="motion-lift cursor-pointer rounded-[28px] p-5 shadow-none ring-1 ring-slate-100"
+                  role="link"
+                  tabIndex={0}
+                  onClick={() => openGroup(group.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      openGroup(group.id);
+                    }
+                  }}
+                >
                   <div className="flex h-full flex-col justify-between gap-5">
                     <div className="space-y-4">
                       <div className="flex items-start justify-between gap-4">
@@ -151,15 +181,22 @@ export default function MyGroupsPage() {
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
-                          onClick={() => handleCopyInvite(group)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleCopyInvite(group);
+                          }}
                           className="motion-lift inline-flex items-center gap-2 rounded-2xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition-[transform,background-color,box-shadow] duration-200 hover:bg-slate-200"
                         >
                           <CopyIcon className="size-4" />
-                          Copy invite link
+                          {copiedGroupId === group.id ? "Copied!" : "Copy invite link"}
                         </button>
                       </div>
 
-                      <Link to={`/groups/${group.id}`} className="motion-soft inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700">
+                      <Link
+                        to={`/groups/${group.id}`}
+                        onClick={(event) => event.stopPropagation()}
+                        className="motion-soft inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700"
+                      >
                         Open group
                         <ArrowRightIcon className="size-4" />
                       </Link>

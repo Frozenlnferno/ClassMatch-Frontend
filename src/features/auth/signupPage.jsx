@@ -2,16 +2,16 @@ import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { signInWithGoogleTo, signUpWithEmail } from "./auth.js";
 import { normalizeEmail, normalizeName } from "../../utils/normalize.js";
-import { Banner, Button, Card, Field, Input, buttonStyles } from "../../components/ui.jsx";
+import { Button, Card, Field, Input, buttonStyles } from "../../components/ui.jsx";
 import { LockIcon, LogoMark, MailIcon } from "../../components/icons.jsx";
 import { resolveNextPath, withNextPath } from "../../utils/classMatch.js";
+import { useNotifications } from "../../contexts/NotificationsContext.jsx";
 
 export default function SignUpPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { notifyError, notifySuccess } = useNotifications();
   const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
@@ -28,14 +28,12 @@ export default function SignUpPage() {
     event.preventDefault();
 
     if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match.");
+      notifyError("Signup failed", "Passwords do not match.");
       return;
     }
 
     try {
       setIsSubmitting(true);
-      setError("");
-      setSuccess("");
 
       const data = await signUpWithEmail(
         normalizeEmail(form.email),
@@ -48,9 +46,9 @@ export default function SignUpPage() {
         return;
       }
 
-      setSuccess("Account created. Check your inbox to finish verifying your email before logging in.");
+      notifySuccess("Check your email", "Account created. Check your inbox to finish verifying your email before logging in.");
     } catch (signUpError) {
-      setError(signUpError instanceof Error ? signUpError.message : "Unable to create your account");
+      notifyError("Signup failed", signUpError instanceof Error ? signUpError.message : "Unable to create your account");
     } finally {
       setIsSubmitting(false);
     }
@@ -59,10 +57,9 @@ export default function SignUpPage() {
   async function handleGoogleSignup() {
     try {
       setIsGoogleLoading(true);
-      setError("");
       await signInWithGoogleTo(nextPath);
     } catch (googleError) {
-      setError(googleError instanceof Error ? googleError.message : "Unable to start Google signup");
+      notifyError("Signup failed", googleError instanceof Error ? googleError.message : "Unable to start Google signup");
       setIsGoogleLoading(false);
     }
   }
@@ -79,17 +76,6 @@ export default function SignUpPage() {
                 Set up your account, then upload a schedule and start matching with classmates.
               </p>
             </div>
-
-            {error ? (
-              <Banner title="Signup failed" tone="danger">
-                {error}
-              </Banner>
-            ) : null}
-            {success ? (
-              <Banner title="Check your email" tone="success">
-                {success}
-              </Banner>
-            ) : null}
 
             <form className="space-y-4" onSubmit={handleSubmit}>
               <Field label="Display name">

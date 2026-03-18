@@ -17,7 +17,6 @@ import { getPublicProfile } from "../settings/settingsService.js";
 import {
   Avatar,
   Badge,
-  Banner,
   Button,
   Card,
   EmptyState,
@@ -41,11 +40,13 @@ import GroupSchedulePicker from "./components/GroupSchedulePicker.jsx";
 import MemberProfileModal from "./components/MemberProfileModal.jsx";
 import ClassDetailsModal from "./components/ClassDetailsModal.jsx";
 import EditGroupModal from "./components/EditGroupModal.jsx";
+import { useNotifications } from "../../contexts/NotificationsContext.jsx";
 
 export default function GroupDetailPage() {
   const navigate = useNavigate();
   const { groupId } = useParams();
   const { session } = useSession();
+  const { notifyError, notifySuccess } = useNotifications();
   const [group, setGroup] = useState(null);
   const [members, setMembers] = useState([]);
   const [schedules, setSchedules] = useState([]);
@@ -90,6 +91,18 @@ export default function GroupDetailPage() {
   useEffect(() => {
     selectedKeyRef.current = selectedKey;
   }, [selectedKey]);
+
+  useEffect(() => {
+    if (error) {
+      notifyError("Group issue", error);
+    }
+  }, [error, notifyError]);
+
+  useEffect(() => {
+    if (success) {
+      notifySuccess("Saved", success);
+    }
+  }, [notifySuccess, success]);
 
   useEffect(() => {
     if (!selectedMember?.user_id) {
@@ -281,9 +294,13 @@ export default function GroupDetailPage() {
   if (!group) {
     return (
       <EmptyState
-        title="Group not found"
-        description="This group might have been removed, or you may no longer have access."
-        action={<Link to="/mygroups" className={buttonStyles({ variant: "primary", size: "md" })}>Back to groups</Link>}
+        title={error ? "Couldn't load group" : "Group not found"}
+        description={error || "This group might have been removed, or you may no longer have access."}
+        action={(
+          error
+            ? <Button onClick={() => refreshWorkspace()}>Try again</Button>
+            : <Link to="/mygroups" className={buttonStyles({ variant: "primary", size: "md" })}>Back to groups</Link>
+        )}
       />
     );
   }
@@ -307,17 +324,6 @@ export default function GroupDetailPage() {
           </>
         )}
       />
-
-      {error ? (
-        <Banner title="Group issue" tone="danger">
-          {error}
-        </Banner>
-      ) : null}
-      {success ? (
-        <Banner title="Saved" tone="success">
-          {success}
-        </Banner>
-      ) : null}
 
       <Card className="motion-fade-up motion-delay-1 space-y-5">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">

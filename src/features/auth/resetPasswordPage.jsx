@@ -2,18 +2,18 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { requestPasswordReset, updatePassword } from "./auth.js";
 import useSession from "../../utils/useSession.js";
-import { Banner, Button, Card, Field, Input } from "../../components/ui.jsx";
+import { Button, Card, Field, Input } from "../../components/ui.jsx";
 import { LockIcon, LogoMark, MailIcon } from "../../components/icons.jsx";
 import { normalizeEmail } from "../../utils/normalize.js";
+import { useNotifications } from "../../contexts/NotificationsContext.jsx";
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const { session } = useSession();
+  const { notifyError, notifySuccess } = useNotifications();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleRequestReset(event) {
@@ -21,12 +21,10 @@ export default function ResetPasswordPage() {
 
     try {
       setIsSubmitting(true);
-      setError("");
-      setSuccess("");
       await requestPasswordReset(normalizeEmail(email));
-      setSuccess("Reset link sent. Check your inbox for the email from ClassMatch.");
+      notifySuccess("Success", "Reset link sent. Check your inbox for the email from ClassMatch.");
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Unable to send reset email");
+      notifyError("Reset issue", requestError instanceof Error ? requestError.message : "Unable to send reset email");
     } finally {
       setIsSubmitting(false);
     }
@@ -36,19 +34,17 @@ export default function ResetPasswordPage() {
     event.preventDefault();
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      notifyError("Reset issue", "Passwords do not match.");
       return;
     }
 
     try {
       setIsSubmitting(true);
-      setError("");
-      setSuccess("");
       await updatePassword(password);
-      setSuccess("Password updated. You can log in with your new password now.");
+      notifySuccess("Success", "Password updated. You can log in with your new password now.");
       window.setTimeout(() => navigate("/login", { replace: true }), 1200);
     } catch (updateError) {
-      setError(updateError instanceof Error ? updateError.message : "Unable to update password");
+      notifyError("Reset issue", updateError instanceof Error ? updateError.message : "Unable to update password");
     } finally {
       setIsSubmitting(false);
     }
@@ -77,17 +73,6 @@ export default function ResetPasswordPage() {
                 : "Enter your account email and we'll send you a secure password reset link."}
             </p>
           </div>
-
-          {error ? (
-            <Banner title="Reset issue" tone="danger">
-              {error}
-            </Banner>
-          ) : null}
-          {success ? (
-            <Banner title="Success" tone="success">
-              {success}
-            </Banner>
-          ) : null}
 
           {session ? (
             <form className="space-y-4" onSubmit={handlePasswordUpdate}>

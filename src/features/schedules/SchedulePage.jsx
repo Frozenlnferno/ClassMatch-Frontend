@@ -9,7 +9,6 @@ import {
 } from "./scheduleService.js";
 import {
   Badge,
-  Banner,
   Button,
   Card,
   EmptyState,
@@ -26,8 +25,10 @@ import {
 import CourseCard from "./components/CourseCard.jsx";
 import SchedulePicker from "./components/SchedulePicker.jsx";
 import CreateScheduleModal from "./components/CreateScheduleModal.jsx";
+import { useNotifications } from "../../contexts/NotificationsContext.jsx";
 
 export default function SchedulePage() {
+  const { notifyError, notifySuccess } = useNotifications();
   const [schedules, setSchedules] = useState([]);
   const [classes, setClasses] = useState([]);
   const [selectedKey, setSelectedKey] = useState("");
@@ -55,6 +56,18 @@ export default function SchedulePage() {
   useEffect(() => {
     selectedKeyRef.current = selectedKey;
   }, [selectedKey]);
+
+  useEffect(() => {
+    if (error) {
+      notifyError("Schedule issue", error);
+    }
+  }, [error, notifyError]);
+
+  useEffect(() => {
+    if (success) {
+      notifySuccess("Saved", success);
+    }
+  }, [notifySuccess, success]);
 
   const loadClassesForSchedule = useCallback(async (schedule) => {
     if (!schedule) {
@@ -215,20 +228,15 @@ export default function SchedulePage() {
         )}
       />
 
-      {error ? (
-        <Banner title="Schedule issue" tone="danger">
-          {error}
-        </Banner>
-      ) : null}
-      {success ? (
-        <Banner title="Saved" tone="success">
-          {success}
-        </Banner>
-      ) : null}
-
       <Card className="motion-fade-up motion-delay-1 space-y-5">
         {isLoadingSchedules ? (
           <LoadingState title="Loading schedules" description="Bringing in every term you've added so far." />
+        ) : error && !schedules.length ? (
+          <EmptyState
+            title="Couldn't load schedules"
+            description={error}
+            action={<Button onClick={() => loadSchedules()}>Try again</Button>}
+          />
         ) : schedules.length ? (
           <>
             <div className="grid gap-4 lg:grid-cols-[minmax(0,320px)_1fr] lg:items-end">
@@ -255,6 +263,12 @@ export default function SchedulePage() {
 
             {isLoadingClasses ? (
               <LoadingState title="Loading classes" description="Gathering the classes in this schedule." />
+            ) : error && selectedSchedule && !normalizedClasses.length ? (
+              <EmptyState
+                title="Couldn't load classes"
+                description={error}
+                action={<Button onClick={() => loadClassesForSchedule(selectedSchedule)}>Try again</Button>}
+              />
             ) : normalizedClasses.length ? (
               <div className="grid gap-4">
                 {normalizedClasses.map((course) => (

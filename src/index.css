@@ -105,7 +105,7 @@ select {
 }
 
 .motion-lift:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .motion-lift:active {

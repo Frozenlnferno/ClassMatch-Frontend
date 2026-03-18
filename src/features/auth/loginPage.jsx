@@ -2,15 +2,16 @@ import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { loginWithEmail, signInWithGoogleTo } from "./auth.js";
 import { normalizeEmail } from "../../utils/normalize.js";
-import { Banner, Button, Card, Field, Input, buttonStyles } from "../../components/ui.jsx";
+import { Button, Card, Field, Input, buttonStyles } from "../../components/ui.jsx";
 import { LockIcon, LogoMark, MailIcon } from "../../components/icons.jsx";
 import { resolveNextPath, withNextPath } from "../../utils/classMatch.js";
+import { useNotifications } from "../../contexts/NotificationsContext.jsx";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { notifyError } = useNotifications();
   const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
@@ -28,11 +29,10 @@ export default function LoginPage() {
 
     try {
       setIsSubmitting(true);
-      setError("");
       await loginWithEmail(normalizeEmail(form.email), form.password);
       navigate(nextPath, { replace: true });
     } catch (loginError) {
-      setError(loginError instanceof Error ? loginError.message : "Unable to log in right now");
+      notifyError("Login failed", loginError instanceof Error ? loginError.message : "Unable to log in right now");
     } finally {
       setIsSubmitting(false);
     }
@@ -41,10 +41,9 @@ export default function LoginPage() {
   async function handleGoogleLogin() {
     try {
       setIsGoogleLoading(true);
-      setError("");
       await signInWithGoogleTo(nextPath);
     } catch (googleError) {
-      setError(googleError instanceof Error ? googleError.message : "Unable to start Google login");
+      notifyError("Login failed", googleError instanceof Error ? googleError.message : "Unable to start Google login");
       setIsGoogleLoading(false);
     }
   }
@@ -83,12 +82,6 @@ export default function LoginPage() {
                 Use your email and password, or continue with Google.
               </p>
             </div>
-
-            {error ? (
-              <Banner title="Login failed" tone="danger">
-                {error}
-              </Banner>
-            ) : null}
 
             <form className="space-y-4" onSubmit={handleSubmit}>
               <Field label="Email">

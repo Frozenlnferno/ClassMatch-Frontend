@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../../contexts/ProfileContext.jsx";
 import { deleteUserAccount, updateUserProfile, uploadUserAvatar } from "./settingsService.js";
@@ -6,9 +6,9 @@ import { updatePassword, logout } from "../auth/auth.js";
 import {
   Avatar,
   Badge,
-  Banner,
   Button,
   Card,
+  EmptyState,
   Field,
   Input,
   LoadingState,
@@ -17,10 +17,12 @@ import {
 import { formatDate } from "../../utils/classMatch.js";
 import EditProfileModal from "./components/EditProfileModal.jsx";
 import DeleteAccountModal from "./components/DeleteAccountModal.jsx";
+import { useNotifications } from "../../contexts/NotificationsContext.jsx";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
   const { profile, isLoading, error: profileError, refreshProfile } = useProfile();
+  const { notifyError, notifySuccess } = useNotifications();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [passwordForm, setPasswordForm] = useState({ password: "", confirmPassword: "" });
@@ -30,6 +32,24 @@ export default function SettingsPage() {
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+  useEffect(() => {
+    if (error) {
+      notifyError("Settings issue", error);
+    }
+  }, [error, notifyError]);
+
+  useEffect(() => {
+    if (profileError) {
+      notifyError("Settings issue", profileError);
+    }
+  }, [notifyError, profileError]);
+
+  useEffect(() => {
+    if (success) {
+      notifySuccess("Saved", success);
+    }
+  }, [notifySuccess, success]);
 
   async function handleProfileUpdate(updates) {
     try {
@@ -110,19 +130,14 @@ export default function SettingsPage() {
         actions={<Button onClick={() => setIsEditOpen(true)}>Edit profile</Button>}
       />
 
-      {error || profileError ? (
-        <Banner title="Settings issue" tone="danger">
-          {error || profileError}
-        </Banner>
-      ) : null}
-      {success ? (
-        <Banner title="Saved" tone="success">
-          {success}
-        </Banner>
-      ) : null}
-
       {isLoading ? (
         <LoadingState title="Loading profile" description="Pulling in your account information." />
+      ) : !profile && profileError ? (
+        <EmptyState
+          title="Couldn't load profile"
+          description={profileError}
+          action={<Button onClick={refreshProfile}>Try again</Button>}
+        />
       ) : (
         <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
           <Card className="motion-fade-up motion-delay-1 space-y-6">
