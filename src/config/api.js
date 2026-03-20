@@ -1,4 +1,6 @@
-const API_ORIGIN = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000").replace(/\/$/, "");
+import { requirePublicUrlEnv } from "./env.js";
+
+const API_ORIGIN = requirePublicUrlEnv("VITE_API_BASE_URL");
 
 export const API_ROUTES = {
     groups: `${API_ORIGIN}/api/groups`,

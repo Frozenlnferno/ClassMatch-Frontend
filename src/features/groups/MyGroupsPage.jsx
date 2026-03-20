@@ -112,7 +112,7 @@ export default function MyGroupsPage() {
     <div className="motion-fade-up space-y-6">
       <PageHeader
         eyebrow="Groups"
-        title="Your ClassMatch groups"
+        title="Your Groups"
         description="Create a new group, join by invite code, or jump back into the spaces you already share with classmates."
         actions={(
           <Button onClick={() => setIsCreateOpen(true)}>
@@ -237,7 +237,7 @@ export default function MyGroupsPage() {
               <Input
                 value={joinCode}
                 onChange={(event) => setJoinCode(event.target.value)}
-                placeholder="XcMiAsad"
+                placeholder="QWERTYUIOP"
                 autoCapitalize="characters"
                 required
               />
