@@ -119,9 +119,24 @@ export default function CreateScheduleModal({
   const phaseLabel = {
     idle: "Ready for upload",
     uploading: "Uploading PDF",
-    parsing: "Parsing and matching classes",
+    queued: "Queued for processing",
+    processing: "Processing schedule import",
     complete: "Finished",
+    completed: "Finished",
+    failed: "Import failed",
+    canceled: "Import canceled",
   }[uploadPhase] || "Working";
+  const phaseToneLabel = uploadPhase === "queued"
+    ? "Queued"
+    : uploadPhase === "processing"
+      ? "Processing"
+      : uploadPhase === "completed" || uploadPhase === "complete"
+        ? "Done"
+        : uploadPhase === "failed"
+          ? "Failed"
+          : uploadPhase === "canceled"
+            ? "Canceled"
+            : "In progress";
 
   return (
     <Modal
@@ -205,19 +220,6 @@ export default function CreateScheduleModal({
               />
             </Field>
 
-            {(uploadProgress > 0 || uploadPhase !== "idle") ? (
-              <Card className="rounded-[28px] bg-slate-50/80 p-5 shadow-none">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-semibold text-slate-900">{phaseLabel}</div>
-                    <span className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
-                      {uploadPhase === "parsing" ? "Processing" : "In progress"}
-                    </span>
-                  </div>
-                  <ProgressBar value={uploadPhase === "parsing" ? 100 : uploadProgress} label="Upload progress" />
-                </div>
-              </Card>
-            ) : null}
           </div>
         ) : (
           <div className="space-y-5">
@@ -285,6 +287,23 @@ export default function CreateScheduleModal({
             </Button>
           </div>
         )}
+
+        {(uploadProgress > 0 || uploadPhase !== "idle") ? (
+          <Card className="rounded-[28px] bg-slate-50/80 p-5 shadow-none">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-semibold text-slate-900">{phaseLabel}</div>
+                <span className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                  {phaseToneLabel}
+                </span>
+              </div>
+              <ProgressBar
+                value={uploadPhase === "uploading" ? uploadProgress : 100}
+                label={method === "pdf" ? "Upload progress" : "Import progress"}
+              />
+            </div>
+          </Card>
+        ) : null}
       </form>
     </Modal>
   );

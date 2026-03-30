@@ -4,6 +4,7 @@ import {
   deleteCourses,
   deleteSchedule,
   getScheduleClasses,
+  waitForScheduleJob,
   getScheduleList,
   uploadSchedulePdf,
 } from "./scheduleService.js";
@@ -143,16 +144,22 @@ export default function SchedulePage() {
         onProgress: setUploadProgress,
         onStatusChange: setUploadPhase,
       });
-
+      const job = await waitForScheduleJob(response.job_id, {
+        onStatusChange: setUploadPhase,
+      });
+      if (job.status !== "completed") {
+        throw new Error(job.last_error || "Unable to upload schedule");
+      }
       setUploadPhase("complete");
+      const result = job.result || {};
       const nextKey = getScheduleKey({
-        year: response.Year,
-        term: response.Term,
+        year: result.year,
+        term: result.term,
       });
 
       const resolvedKey = await loadSchedules(nextKey);
       await loadClassesForSchedule(parseScheduleKey(resolvedKey || nextKey));
-      setSuccess(`Uploaded ${formatScheduleLabel({ year: response.Year, term: response.Term })}.`);
+      setSuccess(`Uploaded ${formatScheduleLabel({ year: result.year, term: result.term })}.`);
       setIsModalOpen(false);
     } finally {
       setIsSubmitting(false);
@@ -165,7 +172,14 @@ export default function SchedulePage() {
     setSuccess("");
 
     try {
-      await addScheduleCourses(payload.term, payload.year, payload.courses);
+      const response = await addScheduleCourses(payload.term, payload.year, payload.courses);
+      setUploadPhase("queued");
+      const job = await waitForScheduleJob(response.job_id, {
+        onStatusChange: setUploadPhase,
+      });
+      if (job.status !== "completed") {
+        throw new Error(job.last_error || "Unable to add classes");
+      }
       const nextKey = getScheduleKey({ year: payload.year, term: payload.term });
       const resolvedKey = await loadSchedules(nextKey);
       await loadClassesForSchedule(parseScheduleKey(resolvedKey || nextKey));

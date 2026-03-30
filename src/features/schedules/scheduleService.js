@@ -57,7 +57,7 @@ export async function uploadSchedulePdf(file, options = {}) {
 
             if (xhr.status >= 200 && xhr.status < 300) {
                 if (onStatusChange) {
-                    onStatusChange("parsing");
+                    onStatusChange("queued");
                 }
                 resolve(payload);
                 return;
@@ -97,6 +97,33 @@ export async function addScheduleCourses(term, year, courses) {
         throw new Error(err.error || `Add courses failed: ${res.status}`);
     }
     return res.json();
+}
+
+export async function getScheduleJob(jobId) {
+    const token = await getToken();
+    const res = await fetch(`${API_BASE}/jobs/${jobId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Failed to fetch job: ${res.status}`);
+    }
+    return res.json();
+}
+
+export async function waitForScheduleJob(jobId, options = {}) {
+    const { onStatusChange, intervalMs = 1500 } = options;
+
+    while (true) {
+        const job = await getScheduleJob(jobId);
+        if (onStatusChange) {
+            onStatusChange(job.status);
+        }
+        if (["completed", "failed", "canceled"].includes(job.status)) {
+            return job;
+        }
+        await new Promise((resolve) => window.setTimeout(resolve, intervalMs));
+    }
 }
 
 export async function deleteSchedule(term, year) {
