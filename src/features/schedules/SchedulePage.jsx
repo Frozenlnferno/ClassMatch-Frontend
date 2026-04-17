@@ -29,7 +29,7 @@ import CreateScheduleModal from "./components/CreateScheduleModal.jsx";
 import { useNotifications } from "../../contexts/NotificationsContext.jsx";
 
 export default function SchedulePage() {
-  const { notifyError, notifySuccess } = useNotifications();
+  const { notify, notifyError, notifySuccess } = useNotifications();
   const [schedules, setSchedules] = useState([]);
   const [classes, setClasses] = useState([]);
   const [selectedKey, setSelectedKey] = useState("");
@@ -132,6 +132,28 @@ export default function SchedulePage() {
     );
   }
 
+  function notifySkippedCourses(result, actionLabel) {
+    const skippedCount = Number(result?.skipped_count || 0);
+    if (!skippedCount) {
+      return;
+    }
+
+    const skippedCourses = Array.isArray(result?.skipped_courses) ? result.skipped_courses : [];
+    const preview = skippedCourses
+      .slice(0, 2)
+      .map((course) => `${course.subject} ${course.course_number} (${course.crn})`)
+      .join(", ");
+    const suffix = skippedCount > 2 ? ` and ${skippedCount - 2} more` : "";
+
+    notify({
+      tone: "warning",
+      title: "Some classes were skipped",
+      message: preview
+        ? `${actionLabel} the rest, but skipped ${preview}${suffix}.`
+        : `${actionLabel} the rest, but skipped ${skippedCount} class${skippedCount === 1 ? "" : "es"}.`,
+    });
+  }
+
   async function handlePdfSubmit(file) {
     setIsSubmitting(true);
     setUploadProgress(0);
@@ -152,6 +174,7 @@ export default function SchedulePage() {
       }
       setUploadPhase("complete");
       const result = job.result || {};
+      const savedCount = Number(result.saved_count || result.courses?.length || 0);
       const nextKey = getScheduleKey({
         year: result.year,
         term: result.term,
@@ -159,7 +182,10 @@ export default function SchedulePage() {
 
       const resolvedKey = await loadSchedules(nextKey);
       await loadClassesForSchedule(parseScheduleKey(resolvedKey || nextKey));
-      setSuccess(`Uploaded ${formatScheduleLabel({ year: result.year, term: result.term })}.`);
+      setSuccess(
+        `Imported ${savedCount} class${savedCount === 1 ? "" : "es"} into ${formatScheduleLabel({ year: result.year, term: result.term })}.`,
+      );
+      notifySkippedCourses(result, "Imported");
       setIsModalOpen(false);
     } finally {
       setIsSubmitting(false);
@@ -180,10 +206,13 @@ export default function SchedulePage() {
       if (job.status !== "completed") {
         throw new Error(job.last_error || "Unable to add classes");
       }
+      const result = job.result || {};
+      const savedCount = Number(result.saved_count || result.courses?.length || 0);
       const nextKey = getScheduleKey({ year: payload.year, term: payload.term });
       const resolvedKey = await loadSchedules(nextKey);
       await loadClassesForSchedule(parseScheduleKey(resolvedKey || nextKey));
-      setSuccess(`Saved classes for ${formatScheduleLabel(payload)}.`);
+      setSuccess(`Saved ${savedCount} class${savedCount === 1 ? "" : "es"} for ${formatScheduleLabel(payload)}.`);
+      notifySkippedCourses(result, "Saved");
       setIsModalOpen(false);
       setIsAddClassesModalOpen(false);
     } finally {

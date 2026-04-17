@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import useSession from "../../utils/useSession.js";
-import { joinGroupByInviteCodeURL } from "../groups/groupService.js";
+import { getUserGroups, joinGroupByInviteCodeURL } from "../groups/groupService.js";
 import { Button, Card, PageHeader, buttonStyles } from "../../components/ui.jsx";
 import { ArrowRightIcon, CopyIcon, LogoMark, UsersIcon } from "../../components/icons.jsx";
 import { buildInviteLink, copyText, withNextPath } from "../../utils/classMatch.js";
@@ -13,9 +13,49 @@ export default function InvitePage() {
   const { session, isSessionLoading } = useSession();
   const { notifyError } = useNotifications();
   const [isJoining, setIsJoining] = useState(false);
+  const [isCheckingMembership, setIsCheckingMembership] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const inviteLink = useMemo(() => buildInviteLink(inviteCode), [inviteCode]);
+
+  useEffect(() => {
+    if (!session) {
+      setIsCheckingMembership(false);
+      return;
+    }
+
+    let isActive = true;
+
+    async function redirectExistingMember() {
+      try {
+        setIsCheckingMembership(true);
+        const groups = await getUserGroups();
+        if (!isActive) {
+          return;
+        }
+
+        const existingGroup = groups.find((group) => group.join_code === inviteCode.trim().toUpperCase());
+        if (existingGroup) {
+          navigate(`/groups/${existingGroup.id}`, { replace: true });
+          return;
+        }
+      } catch (loadError) {
+        if (isActive) {
+          notifyError("Invite issue", loadError instanceof Error ? loadError.message : "Unable to check this invite right now");
+        }
+      } finally {
+        if (isActive) {
+          setIsCheckingMembership(false);
+        }
+      }
+    }
+
+    redirectExistingMember();
+
+    return () => {
+      isActive = false;
+    };
+  }, [inviteCode, navigate, notifyError, session]);
 
   async function handleCopy() {
     try {
@@ -85,7 +125,7 @@ export default function InvitePage() {
           </div>
 
           <div className="flex flex-col justify-center p-8 sm:p-10">
-            {isSessionLoading ? (
+            {isSessionLoading || isCheckingMembership ? (
               <div className="space-y-3">
                 <div className="h-4 w-28 rounded-full bg-slate-100" />
                 <div className="h-10 w-full rounded-2xl bg-slate-100" />

@@ -1,3 +1,5 @@
+import { buildPublicAppUrl } from "../config/site.js";
+
 export const TERM_OPTIONS = [
   { value: "fall", label: "Fall" },
   { value: "spring", label: "Spring" },
@@ -149,7 +151,7 @@ export async function copyText(value) {
 }
 
 export function buildInviteLink(inviteCode) {
-  return `${window.location.origin}/invite/${encodeURIComponent(inviteCode)}`;
+  return buildPublicAppUrl(`/invite/${encodeURIComponent(inviteCode)}`);
 }
 
 export function roleRank(role) {

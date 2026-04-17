@@ -21,7 +21,6 @@ import {
   Card,
   EmptyState,
   LoadingState,
-  PageHeader,
   buttonStyles,
 } from "../../components/ui.jsx";
 import { CopyIcon } from "../../components/icons.jsx";
@@ -40,6 +39,7 @@ import GroupSchedulePicker from "./components/GroupSchedulePicker.jsx";
 import MemberProfileModal from "./components/MemberProfileModal.jsx";
 import ClassDetailsModal from "./components/ClassDetailsModal.jsx";
 import EditGroupModal from "./components/EditGroupModal.jsx";
+import LeaveGroupModal from "./components/LeaveGroupModal.jsx";
 import { useNotifications } from "../../contexts/NotificationsContext.jsx";
 
 export default function GroupDetailPage() {
@@ -60,6 +60,8 @@ export default function GroupDetailPage() {
   const [isSelectedMemberProfileLoading, setIsSelectedMemberProfileLoading] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isLeaveOpen, setIsLeaveOpen] = useState(false);
+  const [isBioExpanded, setIsBioExpanded] = useState(false);
   const [isLoadingWorkspace, setIsLoadingWorkspace] = useState(true);
   const [isLoadingSchedule, setIsLoadingSchedule] = useState(false);
   const [isSavingGroup, setIsSavingGroup] = useState(false);
@@ -103,6 +105,10 @@ export default function GroupDetailPage() {
       notifySuccess("Saved", success);
     }
   }, [notifySuccess, success]);
+
+  useEffect(() => {
+    setIsBioExpanded(false);
+  }, [group?.description, group?.id]);
 
   useEffect(() => {
     if (!selectedMember?.user_id) {
@@ -220,11 +226,10 @@ export default function GroupDetailPage() {
   }
 
   async function handleLeaveGroup() {
-    if (!window.confirm("Leave this group?")) return;
-
     try {
       setError("");
       await leaveGroup(groupId);
+      setIsLeaveOpen(false);
       navigate("/mygroups", { replace: true });
     } catch (leaveError) {
       setError(leaveError instanceof Error ? leaveError.message : "Unable to leave group");
@@ -305,51 +310,62 @@ export default function GroupDetailPage() {
     );
   }
 
+  const canEditGroup = group.my_role === "owner" || group.my_role === "admin";
+  const groupBio = group.description || "This group hasn't added a bio yet.";
+  const shouldTruncateBio = Boolean(group.description && group.description.length > 220);
+  const displayedBio = shouldTruncateBio && !isBioExpanded
+    ? `${group.description.slice(0, 220).trimEnd()}...`
+    : groupBio;
+
   return (
     <div className="motion-fade-up space-y-6">
-      <PageHeader
-        eyebrow="Group details"
-        title={group.name}
-        description={group.description || "This group hasn't added a bio yet."}
-        actions={(
-          <>
-            {group.my_role === "owner" ? <Button variant="secondary" onClick={() => setIsEditOpen(true)}>Edit group</Button> : null}
+      <Card className="motion-fade-up motion-delay-1 space-y-4">
+        <div className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-600">Group details</div>
+
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-4">
+            <Avatar src={group.group_icon_url} name={group.name} size="xl" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <h1 className="truncate text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">{group.name}</h1>
+              <div className="flex flex-wrap gap-2">
+                <Badge tone={group.joinable ? "emerald" : "amber"}>{group.joinable ? "Open" : "Closed"}</Badge>
+                <span className="inline-flex whitespace-nowrap rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                  {group.member_count} members
+                </span>
+                <span className="inline-flex whitespace-nowrap rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                  Join code {group.join_code}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3 lg:justify-end">
+            {canEditGroup ? <Button variant="secondary" onClick={() => setIsEditOpen(true)}>Edit group</Button> : null}
             <Button variant="ghost" onClick={handleCopyInvite}>
               <CopyIcon className="size-4" />
               Copy invite link
             </Button>
-            <Button variant="danger" onClick={handleLeaveGroup}>
+            <Button variant="danger" onClick={() => setIsLeaveOpen(true)}>
               Leave group
             </Button>
-          </>
-        )}
-      />
-
-      <Card className="motion-fade-up motion-delay-1 space-y-5">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-4">
-            <Avatar src={group.group_icon_url} name={group.name} size="xl" />
-            <div className="space-y-2">
-              <div className="flex flex-wrap gap-2">
-                <Badge tone="blue">{group.my_role}</Badge>
-                <Badge tone={group.joinable ? "emerald" : "amber"}>{group.joinable ? "Open" : "Closed"}</Badge>
-              </div>
-              <div className="text-sm text-slate-500">
-                {group.member_count} members - Join code {group.join_code}
-              </div>
-            </div>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-[24px] bg-slate-50 px-4 py-3">
-              <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Member count</div>
-              <div className="mt-1 text-lg font-semibold text-slate-900">{group.member_count}</div>
-            </div>
-            <div className="rounded-[24px] bg-slate-50 px-4 py-3">
-              <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Invite code</div>
-              <div className="mt-1 text-lg font-semibold text-slate-900">{group.join_code}</div>
-            </div>
           </div>
         </div>
+      </Card>
+
+      <Card className="motion-fade-up motion-delay-1 space-y-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Group bio</div>
+        <p className="text-sm leading-6 text-slate-600 sm:text-base">
+          {displayedBio}
+        </p>
+        {shouldTruncateBio ? (
+          <button
+            type="button"
+            onClick={() => setIsBioExpanded((current) => !current)}
+            className="w-fit text-sm font-semibold text-blue-600 transition hover:text-blue-700"
+          >
+            {isBioExpanded ? "Show less" : "See all"}
+          </button>
+        ) : null}
       </Card>
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
@@ -362,77 +378,87 @@ export default function GroupDetailPage() {
             <Badge tone="blue">{members.length} members</Badge>
           </div>
 
-          <div className="rounded-[28px] bg-slate-50 p-5">
-            <div className="text-xs uppercase tracking-[0.24em] text-slate-400">Group bio</div>
-            <p className="mt-3 text-sm leading-7 text-slate-600">{group.description || "This group hasn't added a bio yet."}</p>
-          </div>
-
           <div className="space-y-3">
             {members.map((member) => {
               const canManage = canManageMember(group.my_role, member.role, member.user_id === currentUserId);
               const canPromote = canManage && member.role === "member";
               const canDemote = group.my_role === "owner" && member.role === "admin" && member.user_id !== currentUserId;
+              const hasMemberActions = canPromote || canDemote || canManage;
 
               return (
-                <button
+                <div
                   key={member.user_id}
-                  type="button"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setSelectedMember(member)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelectedMember(member);
+                    }
+                  }}
                   className="motion-lift w-full rounded-[28px] border border-slate-200 bg-slate-50/70 p-4 text-left transition-[transform,border-color,background-color,box-shadow] duration-200 hover:border-blue-200 hover:bg-blue-50/40"
                 >
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-4">
+                  <div
+                    className={[
+                      "flex flex-col items-start gap-3 sm:flex-row sm:items-center",
+                      hasMemberActions ? "sm:justify-between" : "",
+                    ].filter(Boolean).join(" ")}
+                  >
+                    <div className="flex min-w-0 items-center gap-4">
                       <Avatar src={member.avatar_url} name={member.name} size="md" />
-                      <div>
-                        <div className="text-sm font-semibold text-slate-900">{member.name}</div>
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold text-slate-900">{member.name}</div>
                         <div className="mt-1 text-xs text-slate-500">
                           {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
                         </div>
                       </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {canPromote ? (
-                        <button
-                          type="button"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            handleRoleChange(member, "admin");
-                          }}
-                          disabled={busyMemberId === member.user_id}
-                          className="motion-lift rounded-2xl bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700 transition-[transform,background-color,box-shadow] duration-200 hover:bg-blue-200 disabled:opacity-60"
-                        >
-                          Promote
-                        </button>
-                      ) : null}
-                      {canDemote ? (
-                        <button
-                          type="button"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            handleRoleChange(member, "member");
-                          }}
-                          disabled={busyMemberId === member.user_id}
-                          className="motion-lift rounded-2xl bg-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition-[transform,background-color,box-shadow] duration-200 hover:bg-slate-300 disabled:opacity-60"
-                        >
-                          Demote
-                        </button>
-                      ) : null}
-                      {canManage ? (
-                        <button
-                          type="button"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            handleKick(member);
-                          }}
-                          disabled={busyMemberId === member.user_id}
-                          className="motion-lift rounded-2xl bg-rose-100 px-3 py-2 text-xs font-semibold text-rose-700 transition-[transform,background-color,box-shadow] duration-200 hover:bg-rose-200 disabled:opacity-60"
-                        >
-                          Kick
-                        </button>
-                      ) : null}
-                    </div>
+                    {hasMemberActions ? (
+                      <div className="flex w-full flex-nowrap items-center gap-2 overflow-x-auto pb-1 sm:w-auto sm:justify-end sm:overflow-visible sm:pb-0">
+                        {canPromote ? (
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleRoleChange(member, "admin");
+                            }}
+                            disabled={busyMemberId === member.user_id}
+                            className="motion-lift shrink-0 rounded-2xl bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700 transition-[transform,background-color,box-shadow] duration-200 hover:bg-blue-200 disabled:opacity-60"
+                          >
+                            Promote
+                          </button>
+                        ) : null}
+                        {canDemote ? (
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleRoleChange(member, "member");
+                            }}
+                            disabled={busyMemberId === member.user_id}
+                            className="motion-lift shrink-0 rounded-2xl bg-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition-[transform,background-color,box-shadow] duration-200 hover:bg-slate-300 disabled:opacity-60"
+                          >
+                            Demote
+                          </button>
+                        ) : null}
+                        {canManage ? (
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleKick(member);
+                            }}
+                            disabled={busyMemberId === member.user_id}
+                            className="motion-lift shrink-0 rounded-2xl bg-rose-100 px-3 py-2 text-xs font-semibold text-rose-700 transition-[transform,background-color,box-shadow] duration-200 hover:bg-rose-200 disabled:opacity-60"
+                          >
+                            Kick
+                          </button>
+                        ) : null}
+                      </div>
+                    ) : null}
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>
@@ -530,6 +556,12 @@ export default function GroupDetailPage() {
         onClose={() => setIsEditOpen(false)}
         onSubmit={handleUpdateGroup}
         isSubmitting={isSavingGroup}
+      />
+      <LeaveGroupModal
+        group={group}
+        isOpen={isLeaveOpen}
+        onClose={() => setIsLeaveOpen(false)}
+        onConfirm={handleLeaveGroup}
       />
     </div>
   );

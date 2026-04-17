@@ -1,4 +1,5 @@
 import { supabase } from "../../../supabase.js";
+import { buildPublicAppUrl } from "../../config/site.js";
 
 /**
  * Sign up a user with email and password.
@@ -52,7 +53,7 @@ export async function signInWithGoogleTo(redirectPath = "/mygroups") {
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-            redirectTo: `${window.location.origin}${redirectPath}`,
+            redirectTo: buildPublicAppUrl(redirectPath),
         },
     });
     if (error) { throw error; }
@@ -92,7 +93,7 @@ export async function updatePassword(newPassword) {
  */
 export async function requestPasswordReset(email) {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: buildPublicAppUrl("/reset-password"),
     });
     if (error) { throw error; }
     return data;

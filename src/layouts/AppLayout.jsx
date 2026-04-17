@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-do
 import { logout } from "../features/auth/auth.js";
 import { useProfile } from "../contexts/ProfileContext.jsx";
 import { Avatar, buttonStyles, LoadingState } from "../components/ui.jsx";
-import { CalendarIcon, CloseIcon, LogoMark, MenuIcon, UsersIcon } from "../components/icons.jsx";
+import { CalendarIcon, CloseIcon, MenuIcon, UsersIcon } from "../components/icons.jsx";
 
 const navItems = [
   { label: "Groups", to: "/mygroups", icon: UsersIcon },
@@ -37,7 +37,7 @@ function NavItem({ item, mobile = false }) {
 export default function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { profile, isLoading, error, refreshProfile } = useProfile();
+  const { profile, isLoading, error } = useProfile();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -62,7 +62,7 @@ export default function AppLayout() {
       <header className="sticky top-0 z-40 border-b border-white/70 bg-white/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <Link to="/mygroups" className="flex items-center gap-3">
-            <LogoMark className="size-10 text-blue-600" />
+            <img src="/Classmatch-Icon.png" alt="ClassMatch" className="size-10 rounded-2xl object-contain" />
             <div>
               <div className="text-base font-semibold tracking-tight text-slate-900">ClassMatch</div>
               <div className="text-xs text-slate-500">Shared schedules, simpler groups</div>
@@ -121,13 +121,6 @@ export default function AppLayout() {
                         >
                           Profile & settings
                         </Link>
-                        <button
-                          type="button"
-                          onClick={refreshProfile}
-                          className="block w-full rounded-2xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900"
-                        >
-                          Refresh profile
-                        </button>
                         <button
                           type="button"
                           onClick={handleLogout}

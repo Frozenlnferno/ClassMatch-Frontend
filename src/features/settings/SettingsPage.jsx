@@ -9,14 +9,13 @@ import {
   Button,
   Card,
   EmptyState,
-  Field,
-  Input,
   LoadingState,
   PageHeader,
 } from "../../components/ui.jsx";
 import { formatDate } from "../../utils/classMatch.js";
 import EditProfileModal from "./components/EditProfileModal.jsx";
 import DeleteAccountModal from "./components/DeleteAccountModal.jsx";
+import ResetPasswordModal from "./components/ResetPasswordModal.jsx";
 import { useNotifications } from "../../contexts/NotificationsContext.jsx";
 
 export default function SettingsPage() {
@@ -25,7 +24,7 @@ export default function SettingsPage() {
   const { notifyError, notifySuccess } = useNotifications();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [passwordForm, setPasswordForm] = useState({ password: "", confirmPassword: "" });
+  const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -84,12 +83,9 @@ export default function SettingsPage() {
     }
   }
 
-  async function handlePasswordUpdate(event) {
-    event.preventDefault();
-
+  async function handlePasswordUpdate(passwordForm) {
     if (passwordForm.password !== passwordForm.confirmPassword) {
-      setError("Passwords do not match.");
-      return;
+      throw new Error("Passwords do not match.");
     }
 
     try {
@@ -97,10 +93,11 @@ export default function SettingsPage() {
       setError("");
       setSuccess("");
       await updatePassword(passwordForm.password);
-      setPasswordForm({ password: "", confirmPassword: "" });
+      setIsResetPasswordOpen(false);
       setSuccess("Password updated.");
     } catch (passwordError) {
       setError(passwordError instanceof Error ? passwordError.message : "Unable to update password");
+      throw passwordError;
     } finally {
       setIsUpdatingPassword(false);
     }
@@ -179,34 +176,9 @@ export default function SettingsPage() {
 
           <div className="space-y-6">
             <Card className="motion-fade-up motion-delay-1 space-y-5">
-              <div>
-                <div className="text-lg font-semibold text-slate-900">Change password</div>
-                <div className="mt-1 text-sm text-slate-500">Choose a new password for your account.</div>
-              </div>
-
-              <form className="space-y-4" onSubmit={handlePasswordUpdate}>
-                <Field label="New password">
-                  <Input
-                    type="password"
-                    value={passwordForm.password}
-                    onChange={(event) => setPasswordForm((current) => ({ ...current, password: event.target.value }))}
-                    autoComplete="new-password"
-                    required
-                  />
-                </Field>
-                <Field label="Confirm password">
-                  <Input
-                    type="password"
-                    value={passwordForm.confirmPassword}
-                    onChange={(event) => setPasswordForm((current) => ({ ...current, confirmPassword: event.target.value }))}
-                    autoComplete="new-password"
-                    required
-                  />
-                </Field>
-                <Button type="submit" disabled={isUpdatingPassword} className="w-full">
-                  {isUpdatingPassword ? "Updating..." : "Change password"}
-                </Button>
-              </form>
+              <Button variant="secondary" onClick={() => setIsResetPasswordOpen(true)} className="w-full">
+                Reset password
+              </Button>
             </Card>
 
             <Card className="motion-fade-up motion-delay-2 space-y-4 border-rose-100">
@@ -237,6 +209,12 @@ export default function SettingsPage() {
         onClose={() => setIsDeleteOpen(false)}
         onConfirm={handleDeleteAccount}
         isDeleting={isDeletingAccount}
+      />
+      <ResetPasswordModal
+        isOpen={isResetPasswordOpen}
+        onClose={() => setIsResetPasswordOpen(false)}
+        onSubmit={handlePasswordUpdate}
+        isSubmitting={isUpdatingPassword}
       />
     </div>
   );
