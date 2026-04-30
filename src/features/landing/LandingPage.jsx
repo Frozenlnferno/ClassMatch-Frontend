@@ -5,7 +5,7 @@ import { Badge, Card, buttonStyles } from "../../components/ui.jsx";
 const steps = [
   {
     title: "Upload your schedule",
-    description: "Bring in a PDF or add classes by CRN so ClassMatch knows what courses matter to you.",
+    description: "Bring in an ICS calendar file or add classes by CRN so ClassMatch knows what courses matter to you.",
     icon: CalendarIcon,
   },
   {

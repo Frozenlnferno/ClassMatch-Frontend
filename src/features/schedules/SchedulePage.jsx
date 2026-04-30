@@ -6,7 +6,7 @@ import {
   getScheduleClasses,
   waitForScheduleJob,
   getScheduleList,
-  uploadSchedulePdf,
+  uploadScheduleIcs,
 } from "./scheduleService.js";
 import {
   Badge,
@@ -154,7 +154,7 @@ export default function SchedulePage() {
     });
   }
 
-  async function handlePdfSubmit(file) {
+  async function handleIcsSubmit(file) {
     setIsSubmitting(true);
     setUploadProgress(0);
     setUploadPhase("uploading");
@@ -162,7 +162,7 @@ export default function SchedulePage() {
     setSuccess("");
 
     try {
-      const response = await uploadSchedulePdf(file, {
+      const response = await uploadScheduleIcs(file, {
         onProgress: setUploadProgress,
         onStatusChange: setUploadPhase,
       });
@@ -189,6 +189,8 @@ export default function SchedulePage() {
       setIsModalOpen(false);
     } finally {
       setIsSubmitting(false);
+      setUploadProgress(0);
+      setUploadPhase("idle");
     }
   }
 
@@ -339,7 +341,7 @@ export default function SchedulePage() {
         ) : (
           <EmptyState
             title="No schedules yet"
-            description="Upload a PDF or build your first schedule with CRNs so ClassMatch can start finding shared courses."
+            description="Upload an ICS calendar file or build your first schedule with CRNs so ClassMatch can start finding shared courses."
             action={(
               <Button onClick={() => setIsModalOpen(true)}>
                 <UploadIcon className="size-4" />
@@ -357,7 +359,7 @@ export default function SchedulePage() {
           setUploadProgress(0);
           setUploadPhase("idle");
         }}
-        onPdfSubmit={handlePdfSubmit}
+        onIcsSubmit={handleIcsSubmit}
         onCrnSubmit={handleCrnSubmit}
         isSubmitting={isSubmitting}
         uploadProgress={uploadProgress}
@@ -366,8 +368,12 @@ export default function SchedulePage() {
 
       <CreateScheduleModal
         isOpen={isAddClassesModalOpen}
-        onClose={() => setIsAddClassesModalOpen(false)}
-        onPdfSubmit={handlePdfSubmit}
+        onClose={() => {
+          setIsAddClassesModalOpen(false);
+          setUploadProgress(0);
+          setUploadPhase("idle");
+        }}
+        onIcsSubmit={handleIcsSubmit}
         onCrnSubmit={handleCrnSubmit}
         fixedSchedule={selectedSchedule}
         isSubmitting={isSubmitting}

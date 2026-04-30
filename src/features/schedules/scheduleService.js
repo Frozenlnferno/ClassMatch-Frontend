@@ -26,14 +26,14 @@ export async function getScheduleClasses(term, year) {
     return res.json();
 }
 
-export async function uploadSchedulePdf(file, options = {}) {
+export async function uploadScheduleIcs(file, options = {}) {
     const { onProgress, onStatusChange } = options;
     const token = await getToken();
 
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         const formData = new FormData();
-        formData.append("pdf", file);
+        formData.append("ics", file);
 
         xhr.open("POST", API_BASE);
         xhr.setRequestHeader("Authorization", `Bearer ${token}`);

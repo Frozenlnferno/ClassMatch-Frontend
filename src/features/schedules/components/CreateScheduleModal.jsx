@@ -19,14 +19,14 @@ import {
 export default function CreateScheduleModal({
   isOpen,
   onClose,
-  onPdfSubmit,
+  onIcsSubmit,
   onCrnSubmit,
   fixedSchedule,
   isSubmitting,
   uploadProgress,
   uploadPhase,
 }) {
-  const [method, setMethod] = useState(fixedSchedule ? "crn" : "pdf");
+  const [method, setMethod] = useState(fixedSchedule ? "crn" : "ics");
   const [selectedFile, setSelectedFile] = useState(null);
   const [form, setForm] = useState({
     year: fixedSchedule?.year || getYearOptions()[0],
@@ -37,7 +37,7 @@ export default function CreateScheduleModal({
 
   useEffect(() => {
     if (!isOpen) return;
-    setMethod(fixedSchedule ? "crn" : "pdf");
+    setMethod(fixedSchedule ? "crn" : "ics");
     setSelectedFile(null);
     setForm({
       year: fixedSchedule?.year || getYearOptions()[0],
@@ -74,13 +74,13 @@ export default function CreateScheduleModal({
     event.preventDefault();
     setError("");
 
-    if (method === "pdf") {
+    if (method === "ics") {
       if (!selectedFile) {
-        setError("Choose a PDF file before uploading.");
+        setError("Choose an ICS file before uploading.");
         return;
       }
       try {
-        await onPdfSubmit(selectedFile);
+        await onIcsSubmit(selectedFile);
       } catch (submitError) {
         setError(submitError instanceof Error ? submitError.message : "Unable to upload schedule");
       }
@@ -118,7 +118,7 @@ export default function CreateScheduleModal({
 
   const phaseLabel = {
     idle: "Ready for upload",
-    uploading: "Uploading PDF",
+    uploading: "Uploading ICS",
     queued: "Queued for processing",
     processing: "Processing schedule import",
     complete: "Finished",
@@ -149,7 +149,7 @@ export default function CreateScheduleModal({
         <>
           <Button variant="ghost" onClick={onClose}>Cancel</Button>
           <Button type="submit" form="schedule-modal-form" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : method === "pdf" ? "Upload schedule" : "Save classes"}
+            {isSubmitting ? "Saving..." : method === "ics" ? "Upload schedule" : "Save classes"}
           </Button>
         </>
       )}
@@ -159,15 +159,15 @@ export default function CreateScheduleModal({
           <div className="grid gap-3 sm:grid-cols-2">
             <button
               type="button"
-              onClick={() => setMethod("pdf")}
+              onClick={() => setMethod("ics")}
               className={[
                 "motion-lift rounded-[24px] border p-5 text-left transition-[transform,border-color,background-color,box-shadow] duration-200",
-                method === "pdf" ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-slate-50 hover:border-blue-200",
+                method === "ics" ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-slate-50 hover:border-blue-200",
               ].join(" ")}
             >
-              <div className="text-sm font-semibold text-slate-900">PDF upload</div>
+              <div className="text-sm font-semibold text-slate-900">ICS upload</div>
               <div className="mt-2 text-sm leading-6 text-slate-500">
-                Best when you already have an exported schedule PDF ready from your school portal.
+                Best when you already have an exported calendar file ready from your school portal.
               </div>
             </button>
 
@@ -193,28 +193,28 @@ export default function CreateScheduleModal({
           </Banner>
         ) : null}
 
-        {method === "pdf" ? (
+        {method === "ics" ? (
           <div className="space-y-5">
             <Card className="rounded-[28px] bg-slate-50/80 p-5 shadow-none">
               <div className="space-y-2">
-                <div className="text-sm font-semibold text-slate-900">How to get your schedule PDF</div>
+                <div className="text-sm font-semibold text-slate-900">How to get your schedule ICS</div>
                 <ol className="list-decimal space-y-2 pl-5 text-sm leading-6 text-slate-600">
                   <li>Login to your UIUC Self Service account.</li>
                   <li>Go to Class Registration under Student Services.</li>
                   <li>Click View Class Schedules.</li>
                   <li>Select the term you want.</li>
-                  <li>Download the PDF by clicking the printer icon and save as PDF.</li>
+                  <li>Export or download the calendar file for that schedule.</li>
                 </ol>
                 <p className="text-sm leading-6 text-slate-600">
-                  <span className="font-semibold text-slate-700">NOTE:</span> Different browsers download PDFs differently. Try using Chrome for best results if your browser&apos;s downloaded PDF does not work.
+                  <span className="font-semibold text-slate-700">NOTE:</span> ClassMatch expects a .ics calendar file with your class events and CRNs.
                 </p>
               </div>
             </Card>
 
-            <Field label="Schedule PDF">
+            <Field label="Schedule ICS">
               <input
                 type="file"
-                accept="application/pdf"
+                accept=".ics,text/calendar"
                 onChange={(event) => setSelectedFile(event.target.files?.[0] || null)}
                 className="block w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600 file:mr-4 file:rounded-xl file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
               />
@@ -299,7 +299,7 @@ export default function CreateScheduleModal({
               </div>
               <ProgressBar
                 value={uploadPhase === "uploading" ? uploadProgress : 100}
-                label={method === "pdf" ? "Upload progress" : "Import progress"}
+                label={method === "ics" ? "Upload progress" : "Import progress"}
               />
             </div>
           </Card>
