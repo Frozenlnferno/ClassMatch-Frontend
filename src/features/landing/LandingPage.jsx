@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRightIcon, CalendarIcon, LogoMark, UsersIcon } from "../../components/icons.jsx";
+import { ArrowRightIcon, CalendarIcon, UsersIcon } from "../../components/icons.jsx";
 import { Badge, Card, buttonStyles } from "../../components/ui.jsx";
 
 const steps = [
@@ -25,10 +25,10 @@ export default function LandingPage() {
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <header className="motion-fade-in flex items-center justify-between gap-4 py-2">
         <Link to="/" className="motion-soft flex items-center gap-3">
-          <LogoMark className="size-11 text-blue-600" />
+          <img src="/Classmatch-Icon.png" alt="ClassMatch" className="size-11 rounded-2xl object-contain" />
           <div>
             <div className="text-base font-semibold tracking-tight text-slate-900">ClassMatch</div>
-            <div className="text-xs text-slate-500">UIUC students finding classmates in shared courses</div>
+            <div className="text-xs text-slate-500">Match schedules. Make connections.</div>
           </div>
         </Link>
 
@@ -46,16 +46,12 @@ export default function LandingPage() {
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <Card className="motion-fade-up overflow-hidden bg-[linear-gradient(145deg,_rgba(255,255,255,0.94)_0%,_rgba(239,246,255,0.92)_100%)] p-8 sm:p-10">
             <div className="max-w-2xl space-y-6">
-              <Badge tone="blue">Built for UIUC students</Badge>
               <div className="space-y-4">
                 <h1 className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
                   ClassMatch helps UIUC students find classmates in the courses they already share.
                 </h1>
                 <p className="max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
                   Upload your UIUC schedule, join a group, and instantly see which classmates overlap with your classes now or have taken them before.
-                </p>
-                <p className="max-w-xl text-sm leading-6 text-slate-500">
-                  Currently tailored for University of Illinois Urbana-Champaign course schedules and student workflows.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
@@ -104,7 +100,7 @@ export default function LandingPage() {
               <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">Three simple steps to get connected</h2>
             </div>
             <p className="max-w-xl text-sm leading-6 text-slate-500">
-              Start with your UIUC schedule, then let ClassMatch surface the classmates and groups that matter.
+              Start with your schedule, then let ClassMatch surface the classmates and groups that matter.
             </p>
           </div>
 

@@ -62,10 +62,10 @@ export default function AppLayout() {
       <header className="sticky top-0 z-40 border-b border-white/70 bg-white/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <Link to="/mygroups" className="flex items-center gap-3">
-            <img src="/Classmatch-Icon.png" alt="ClassMatch" className="size-10 rounded-2xl object-contain" />
+            <img src="/Classmatch-Icon.png" alt="ClassMatch" className="size-10 rounded-xl object-contain" />
             <div>
               <div className="text-base font-semibold tracking-tight text-slate-900">ClassMatch</div>
-              <div className="text-xs text-slate-500">Shared schedules, simpler groups</div>
+              <div className="text-xs text-slate-500">Match schedules. Make connections.</div>
             </div>
           </Link>
 
