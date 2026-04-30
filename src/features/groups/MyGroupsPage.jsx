@@ -155,7 +155,7 @@ export default function MyGroupsPage() {
             {groups.map((group) => (
               <Card
                 key={group.id}
-                className="motion-lift cursor-pointer rounded-[28px] p-5 shadow-none ring-1 ring-slate-100"
+                className="motion-lift cursor-pointer rounded-[28px] p-5 shadow-md ring-1 ring-slate-100"
                 role="link"
                 tabIndex={0}
                 onClick={() => openGroup(group.id)}

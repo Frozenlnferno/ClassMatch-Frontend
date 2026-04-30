@@ -66,7 +66,7 @@ export function formatScheduleLabel(schedule) {
 
 export function getYearOptions() {
   const currentYear = new Date().getFullYear();
-  return Array.from({ length: 8 }, (_, index) => currentYear + 3 - index);
+  return Array.from({ length: 10 }, (_, index) => currentYear - index);
 }
 
 export function getInitials(name) {

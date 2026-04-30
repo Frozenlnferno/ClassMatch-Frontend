@@ -332,3 +332,12 @@ export async function uploadGroupIcon(groupId, file) {
 
     return await response.json();
 }
+
+/**
+ * Remove a group icon (admin/owner only)
+ * @param {string} groupId - ID of the group
+ * @returns {Promise<object>} Success response
+ */
+export async function removeGroupIcon(groupId) {
+    return updateGroupInfo(groupId, { group_icon_url: null });
+}

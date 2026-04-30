@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../../contexts/ProfileContext.jsx";
-import { deleteUserAccount, updateUserProfile, uploadUserAvatar } from "./settingsService.js";
+import { deleteUserAccount, removeUserAvatar, updateUserProfile, uploadUserAvatar } from "./settingsService.js";
 import { updatePassword, logout } from "../auth/auth.js";
 import {
   Avatar,
@@ -12,7 +12,6 @@ import {
   LoadingState,
   PageHeader,
 } from "../../components/ui.jsx";
-import { formatDate } from "../../utils/classMatch.js";
 import EditProfileModal from "./components/EditProfileModal.jsx";
 import DeleteAccountModal from "./components/DeleteAccountModal.jsx";
 import ResetPasswordModal from "./components/ResetPasswordModal.jsx";
@@ -83,6 +82,21 @@ export default function SettingsPage() {
     }
   }
 
+  async function handleAvatarRemove() {
+    try {
+      setIsUploadingAvatar(true);
+      setError("");
+      setSuccess("");
+      await removeUserAvatar();
+      await refreshProfile();
+      setSuccess("Profile photo removed.");
+    } catch (removeError) {
+      setError(removeError instanceof Error ? removeError.message : "Unable to remove avatar");
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  }
+
   async function handlePasswordUpdate(passwordForm) {
     if (passwordForm.password !== passwordForm.confirmPassword) {
       throw new Error("Passwords do not match.");
@@ -146,27 +160,20 @@ export default function SettingsPage() {
                   <div className="text-sm text-slate-500">{profile?.email}</div>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Badge tone="blue">Joined {formatDate(profile?.created_at)}</Badge>
                   <label className="inline-flex cursor-pointer items-center rounded-2xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200">
-                    {isUploadingAvatar ? "Uploading..." : "Upload photo"}
-                    <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                    {isUploadingAvatar ? "Working..." : profile?.avatar_url ? "Change photo" : "Upload photo"}
+                    <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" disabled={isUploadingAvatar} />
                   </label>
+                  {profile?.avatar_url ? (
+                    <Button variant="ghost" size="sm" onClick={handleAvatarRemove} disabled={isUploadingAvatar}>
+                      Remove photo
+                    </Button>
+                  ) : null}
                 </div>
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-[24px] bg-slate-50 p-5">
-                <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Display name</div>
-                <div className="mt-2 text-lg font-semibold text-slate-900">{profile?.name}</div>
-              </div>
-              <div className="rounded-[24px] bg-slate-50 p-5">
-                <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Date joined</div>
-                <div className="mt-2 text-lg font-semibold text-slate-900">{formatDate(profile?.created_at)}</div>
-              </div>
-            </div>
-
-            <div className="rounded-[28px] bg-slate-50 p-5">
+            <div className="rounded-[28px] bg-slate-100 p-5">
               <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Bio</div>
               <p className="mt-3 text-sm leading-7 text-slate-600">
                 {profile?.bio || "Add a short bio so classmates know what you're studying or what you're interested in."}

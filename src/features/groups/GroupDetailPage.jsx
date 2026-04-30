@@ -9,6 +9,7 @@ import {
   getPastClassmates,
   kickMember,
   leaveGroup,
+  removeGroupIcon,
   updateGroupInfo,
   uploadGroupIcon,
 } from "./groupService.js";
@@ -39,6 +40,7 @@ import GroupSchedulePicker from "./components/GroupSchedulePicker.jsx";
 import MemberProfileModal from "./components/MemberProfileModal.jsx";
 import ClassDetailsModal from "./components/ClassDetailsModal.jsx";
 import EditGroupModal from "./components/EditGroupModal.jsx";
+import KickMemberModal from "./components/KickMemberModal.jsx";
 import LeaveGroupModal from "./components/LeaveGroupModal.jsx";
 import { useNotifications } from "../../contexts/NotificationsContext.jsx";
 
@@ -59,6 +61,7 @@ export default function GroupDetailPage() {
   const [selectedMemberProfileError, setSelectedMemberProfileError] = useState("");
   const [isSelectedMemberProfileLoading, setIsSelectedMemberProfileLoading] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [memberPendingKick, setMemberPendingKick] = useState(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isLeaveOpen, setIsLeaveOpen] = useState(false);
   const [isBioExpanded, setIsBioExpanded] = useState(false);
@@ -251,16 +254,17 @@ export default function GroupDetailPage() {
     }
   }
 
-  async function handleKick(member) {
-    if (!window.confirm(`Remove ${member.name} from this group?`)) return;
+  async function handleKickConfirm() {
+    if (!memberPendingKick) return;
 
     try {
-      setBusyMemberId(member.user_id);
+      setBusyMemberId(memberPendingKick.user_id);
       setError("");
       setSuccess("");
-      await kickMember(groupId, member.user_id);
+      await kickMember(groupId, memberPendingKick.user_id);
       await refreshWorkspace(selectedKey);
-      setSuccess(`${member.name} was removed from the group.`);
+      setSuccess(`${memberPendingKick.name} was removed from the group.`);
+      setMemberPendingKick(null);
     } catch (kickError) {
       setError(kickError instanceof Error ? kickError.message : "Unable to remove member");
     } finally {
@@ -276,6 +280,8 @@ export default function GroupDetailPage() {
 
       if (form.iconFile) {
         await uploadGroupIcon(groupId, form.iconFile);
+      } else if (form.removeIcon) {
+        await removeGroupIcon(groupId);
       }
 
       await updateGroupInfo(groupId, {
@@ -447,7 +453,7 @@ export default function GroupDetailPage() {
                             type="button"
                             onClick={(event) => {
                               event.stopPropagation();
-                              handleKick(member);
+                              setMemberPendingKick(member);
                             }}
                             disabled={busyMemberId === member.user_id}
                             className="motion-lift shrink-0 rounded-2xl bg-rose-100 px-3 py-2 text-xs font-semibold text-rose-700 transition-[transform,background-color,box-shadow] duration-200 hover:bg-rose-200 disabled:opacity-60"
@@ -550,6 +556,14 @@ export default function GroupDetailPage() {
         onClose={() => setSelectedMember(null)}
       />
       <ClassDetailsModal course={selectedCourse} isOpen={Boolean(selectedCourse)} onClose={() => setSelectedCourse(null)} />
+      <KickMemberModal
+        group={group}
+        member={memberPendingKick}
+        isOpen={Boolean(memberPendingKick)}
+        onClose={() => setMemberPendingKick(null)}
+        onConfirm={handleKickConfirm}
+        isRemoving={Boolean(memberPendingKick && busyMemberId === memberPendingKick.user_id)}
+      />
       <EditGroupModal
         group={group}
         isOpen={isEditOpen}

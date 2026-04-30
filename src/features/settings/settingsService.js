@@ -53,6 +53,14 @@ export async function uploadUserAvatar(file) {
 }
 
 /**
+ * Remove current user's avatar image
+ * @returns {Promise<object>} API response payload
+ */
+export async function removeUserAvatar() {
+    return updateUserProfile({ avatar_url: null });
+}
+
+/**
  * Delete current user's account
  * @returns {Promise<object>} API response payload
  */

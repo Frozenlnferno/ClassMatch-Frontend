@@ -16,6 +16,15 @@ import {
   getYearOptions,
 } from "../../../utils/classMatch.js";
 
+function createCourseRow() {
+  return {
+    id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+    subject: "",
+    course: "",
+    crn: "",
+  };
+}
+
 export default function CreateScheduleModal({
   isOpen,
   onClose,
@@ -31,7 +40,7 @@ export default function CreateScheduleModal({
   const [form, setForm] = useState({
     year: fixedSchedule?.year || getYearOptions()[0],
     term: fixedSchedule?.term || "fall",
-    courses: [{ subject: "", course: "", crn: "" }],
+    courses: [createCourseRow()],
   });
   const [error, setError] = useState("");
 
@@ -42,7 +51,7 @@ export default function CreateScheduleModal({
     setForm({
       year: fixedSchedule?.year || getYearOptions()[0],
       term: fixedSchedule?.term || "fall",
-      courses: [{ subject: "", course: "", crn: "" }],
+      courses: [createCourseRow()],
     });
     setError("");
   }, [fixedSchedule, isOpen]);
@@ -59,7 +68,7 @@ export default function CreateScheduleModal({
   function addRow() {
     setForm((current) => ({
       ...current,
-      courses: [...current.courses, { subject: "", course: "", crn: "" }],
+      courses: [...current.courses, createCourseRow()],
     }));
   }
 
@@ -203,7 +212,8 @@ export default function CreateScheduleModal({
                   <li>Go to Class Registration under Student Services.</li>
                   <li>Click View Class Schedules.</li>
                   <li>Select the term you want.</li>
-                  <li>Export or download the calendar file for that schedule.</li>
+                  <li>Click the mail calendar icon next to the printer icon.</li>
+                  <li>Send the calendar to your email and download the .ics file.</li>
                 </ol>
                 <p className="text-sm leading-6 text-slate-600">
                   <span className="font-semibold text-slate-700">NOTE:</span> ClassMatch expects a .ics calendar file with your class events and CRNs.
@@ -254,7 +264,7 @@ export default function CreateScheduleModal({
 
             <div className="space-y-3">
               {form.courses.map((course, index) => (
-                <Card key={`${index}-${course.crn}`} className="rounded-[28px] bg-slate-50/80 p-5 shadow-none">
+                <Card key={course.id} className="rounded-[28px] bg-slate-50/80 p-5 shadow-none">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-sm font-semibold text-slate-900">Class {index + 1}</div>
@@ -271,7 +281,7 @@ export default function CreateScheduleModal({
                       <Input value={course.subject} onChange={(event) => updateCourse(index, "subject", event.target.value)} placeholder="CS" />
                     </Field>
                     <Field label="Course number">
-                      <Input value={course.course} onChange={(event) => updateCourse(index, "course", event.target.value)} placeholder="374" />
+                      <Input value={course.course} onChange={(event) => updateCourse(index, "course", event.target.value)} placeholder="101" />
                     </Field>
                     <Field label="CRN">
                       <Input value={course.crn} onChange={(event) => updateCourse(index, "crn", event.target.value)} placeholder="12345" />
