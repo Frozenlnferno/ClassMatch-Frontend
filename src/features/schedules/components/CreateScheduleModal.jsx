@@ -211,13 +211,12 @@ export default function CreateScheduleModal({
                   <li>Login to your UIUC Self Service account.</li>
                   <li>Go to Class Registration under Student Services.</li>
                   <li>Click View Class Schedules.</li>
-                  <li>Select the term you want.</li>
-                  <li>Click the mail calendar icon next to the printer icon.</li>
-                  <li>Send the calendar to your email and download the .ics file.</li>
+                  <li>Select the term you want (e.g., Fall 2026).</li>
+                  <li>Click the MAIL CALENDAR ICON next to the printer icon.</li>
+                  <li>Send the calendar to your email. It might take a minute to send. </li>
+                  <li>Open the email and download the attached file. No need to open it.</li>
+                  <li>Upload the .ics file below.</li>
                 </ol>
-                <p className="text-sm leading-6 text-slate-600">
-                  <span className="font-semibold text-slate-700">NOTE:</span> ClassMatch expects a .ics calendar file with your class events and CRNs.
-                </p>
               </div>
             </Card>
 
