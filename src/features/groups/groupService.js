@@ -87,12 +87,13 @@ export async function createGroup(groupData) {
 export async function joinGroup(joinCode) {
     const token = await getToken();
 
-    const response = await fetch(`${API_ROUTES.groups}/join?join_code=${encodeURIComponent(joinCode)}`, {
-        method: 'GET',
+    const response = await fetch(`${API_ROUTES.groups}/join`, {
+        method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ join_code: joinCode }),
     });
 
     if (!response.ok) {
